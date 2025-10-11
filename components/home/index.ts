@@ -1,0 +1,9 @@
+export { default as Navigation } from './navigation';
+export { default as Hero } from './hero';
+export { default as Categories } from './categories';
+export { default as TrendingNFTs } from './trending-nfts';
+export { default as DigitalProducts } from './digital-products';
+export { default as TopSellers } from './top-sellers';
+export { default as Features } from './features';
+export { default as Newsletter } from './newsletter';
+export { default as Footer } from './footer';
