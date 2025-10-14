@@ -1,5 +1,8 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import { brandName, navigationLinks } from "./consts";
+import { Link } from "react-scroll";
 
 export default function Navigation() {
   return (
@@ -12,9 +15,17 @@ export default function Navigation() {
           </div>
           <div className="hidden md:flex space-x-8">
             {navigationLinks.map((link, index) => (
-              <a key={index} href={link.href} className="text-gray-300 hover:text-white transition">
+              <Link
+                key={index}
+                to={link.href}
+                spy={true}
+                smooth={true}
+                offset={-70}
+                duration={500}
+                className="text-gray-300 hover:text-white transition cursor-pointer"
+              >
                 {link.label}
-              </a>
+              </Link>
             ))}
           </div>
           <Button size="lg">

@@ -15,11 +15,19 @@ export default function Home() {
     <div className="min-h-screen bg-gradient-to-b from-gray-900 via-purple-900 to-violet-900">
       <Navigation />
       <Hero />
-      <Categories />
-      <TrendingNFTs />
-      <DigitalProducts />
+      <div id="categories">
+        <Categories />
+      </div>
+      <div id="nfts">
+        <TrendingNFTs />
+      </div>
+      <div id="digital-products">
+        <DigitalProducts />
+      </div>
       <TopSellers />
-      <Features />
+      <div id="features">
+        <Features />
+      </div>
       <Newsletter />
       <Footer />
     </div>
