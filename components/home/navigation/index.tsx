@@ -1,8 +1,8 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 import { brandName, navigationLinks } from "./consts";
 import { Link } from "react-scroll";
+import { WalletButton } from "@/components/wallet/wallet_button";
 
 export default function Navigation() {
   return (
@@ -28,9 +28,7 @@ export default function Navigation() {
               </Link>
             ))}
           </div>
-          <Button size="lg">
-            Connect Wallet
-          </Button>
+          <WalletButton />
         </div>
       </div>
     </nav>
