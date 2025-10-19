@@ -1,6 +1,7 @@
 'use client';
 
 import { useAuth } from '@/hooks/useAuth';
+import { useAccount } from 'wagmi';
 import { AccountInfo } from '@/components/wallet/account_info';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,6 +10,7 @@ import Link from 'next/link';
 
 export default function ProfilePage() {
   const { isConnected, isAuthenticated, authenticate, isLoading, error, address } = useAuth();
+  const { chain } = useAccount();
 
   if (!isConnected) {
     return (
@@ -88,15 +90,40 @@ export default function ProfilePage() {
         )}
 
         {isAuthenticated && (
-          <Card>
-            <CardHeader>
-              <CardTitle>Protected Content</CardTitle>
-              <CardDescription>
-                This content is only visible to authenticated users
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
+          <>
+            <Card>
+              <CardHeader>
+                <CardTitle>Account Information</CardTitle>
+                <CardDescription>
+                  Your verified wallet information
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-sm text-gray-400 mb-1">Wallet Address</p>
+                      <p className="text-white font-mono text-sm break-all">{address}</p>
+                    </div>
+                    {chain && (
+                      <div>
+                        <p className="text-sm text-gray-400 mb-1">Network</p>
+                        <p className="text-white">{chain.name}</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Marketplace Access</CardTitle>
+                <CardDescription>
+                  Features available to authenticated users
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
                 <div className="p-4 bg-gradient-to-r from-purple-500/10 to-blue-500/10 rounded-lg border border-purple-500/20">
                   <h3 className="font-semibold text-white mb-2">Welcome, {address?.slice(0, 6)}...{address?.slice(-4)}</h3>
                   <p className="text-sm text-gray-300">
@@ -109,9 +136,9 @@ export default function ProfilePage() {
                     <li>Access exclusive features</li>
                   </ul>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </>
         )}
 
         <div className="flex justify-center">
