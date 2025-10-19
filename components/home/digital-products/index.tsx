@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { products } from "./consts";
+import { products } from "@/lib/mock_data";
 
 export default function DigitalProducts() {
   return (

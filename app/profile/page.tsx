@@ -3,6 +3,7 @@
 import { useAuth } from '@/hooks/useAuth';
 import { useAccount } from 'wagmi';
 import { AccountInfo } from '@/components/wallet/account_info';
+import { Navigation } from '@/components/home';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -36,8 +37,10 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-black py-12 px-4">
-      <div className="max-w-4xl mx-auto space-y-6">
+    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-black">
+      <Navigation />
+      <div className="py-12 px-8">
+        <div className="max-w-6xl mx-auto space-y-6">
         <div className="flex items-center justify-between">
           <h1 className="text-4xl font-bold text-white">Profile</h1>
           {isAuthenticated ? (
@@ -145,6 +148,7 @@ export default function ProfilePage() {
           <Link href="/">
             <Button variant="outline">Back to Home</Button>
           </Link>
+        </div>
         </div>
       </div>
     </div>
