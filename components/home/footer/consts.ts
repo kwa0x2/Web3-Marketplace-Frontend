@@ -1,25 +1,25 @@
 export const marketplaceLinks = [
-  { label: "All NFTs", href: "#" },
-  { label: "Digital Products", href: "#" },
-  { label: "API Access", href: "#" },
-  { label: "Software", href: "#" },
-  { label: "Templates", href: "#" },
+  { label: "Explore NFTs", href: "/marketplace" },
+  { label: "Trending Collections", href: "/marketplace" },
+  { label: "Top Sellers", href: "/#top-sellers" },
+  { label: "Activity", href: "#" },
+  { label: "Stats", href: "#" },
 ];
 
 export const myAccountLinks = [
-  { label: "Profile", href: "#" },
-  { label: "My Collections", href: "#" },
-  { label: "My Purchases", href: "#" },
-  { label: "Settings", href: "#" },
-  { label: "Sell on Platform", href: "#" },
+  { label: "Profile", href: "/profile" },
+  { label: "My NFTs", href: "/profile" },
+  { label: "My Favorites", href: "#" },
+  { label: "Wallet", href: "/dashboard" },
+  { label: "Create NFT", href: "#" },
 ];
 
 export const resourcesLinks = [
-  { label: "Help Center", href: "#" },
-  { label: "Documentation", href: "#" },
-  { label: "Platform Status", href: "#" },
+  { label: "Getting Started", href: "#" },
+  { label: "How to Buy NFTs", href: "#" },
+  { label: "How to Sell NFTs", href: "#" },
   { label: "FAQ", href: "#" },
-  { label: "API Docs", href: "#" },
+  { label: "Support", href: "#" },
 ];
 
 export const socialLinks = [

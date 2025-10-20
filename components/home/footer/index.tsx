@@ -3,7 +3,7 @@ import { marketplaceLinks, myAccountLinks, resourcesLinks, socialLinks, footerBo
 export default function Footer() {
   return (
     <footer className="border-t border-white/10 mt-20 bg-black/20">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="max-w-[1800px] mx-auto px-8 py-12">
         {/* Top Footer */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 mb-8">
           {/* Brand */}
@@ -13,7 +13,7 @@ export default function Footer() {
               <span className="text-white font-bold text-2xl">Web3 Market</span>
             </div>
             <p className="text-gray-400 mb-6 max-w-sm">
-              The leading marketplace for NFTs, digital products, and API access. Built on blockchain technology for secure transactions.
+              The premier NFT marketplace for discovering, collecting, and trading extraordinary digital collectibles. Built on blockchain technology for secure transactions.
             </p>
             <div className="flex space-x-4">
               {socialLinks.map((social, index) => (
