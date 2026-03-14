@@ -4,9 +4,7 @@ export default function Footer() {
   return (
     <footer className="border-t border-white/10 mt-20 bg-black/20">
       <div className="max-w-[1800px] mx-auto px-8 py-12">
-        {/* Top Footer */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 mb-8">
-          {/* Brand */}
           <div className="lg:col-span-2">
             <div className="flex items-center space-x-2 mb-4">
               <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg"></div>
@@ -29,7 +27,6 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Marketplace */}
           <div>
             <h4 className="text-white font-semibold mb-4 text-lg">Marketplace</h4>
             <ul className="space-y-3">
@@ -43,7 +40,6 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* My Account */}
           <div>
             <h4 className="text-white font-semibold mb-4 text-lg">My Account</h4>
             <ul className="space-y-3">
@@ -57,7 +53,6 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Resources */}
           <div>
             <h4 className="text-white font-semibold mb-4 text-lg">Resources</h4>
             <ul className="space-y-3">
@@ -72,7 +67,6 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Bottom Footer */}
         <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
           <div className="text-gray-400 text-sm">
             © 2024 Web3 Market. All rights reserved. Built with ❤️ on Blockchain.

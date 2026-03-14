@@ -404,3 +404,39 @@ export const MOCK_ACTIVE_LISTINGS: DashboardListing[] = [
     listedDate: '3 days ago',
   },
 ];
+
+// ========================================
+// COLLECTION SELECTOR DATA
+// ========================================
+
+export interface MockCollection {
+  id: string;
+  name: string;
+  symbol: string;
+  image?: string;
+  itemCount?: number;
+}
+
+export const MOCK_COLLECTIONS: MockCollection[] = [
+  {
+    id: 'new',
+    name: 'Create New Collection',
+    symbol: 'NEW',
+    image: '',
+    itemCount: 0
+  },
+  {
+    id: '1',
+    name: 'My Art Collection',
+    symbol: 'MAC',
+    image: '/api/placeholder/100/100',
+    itemCount: 12
+  },
+  {
+    id: '2',
+    name: 'Digital Dreams',
+    symbol: 'DD',
+    image: '/api/placeholder/100/100',
+    itemCount: 5
+  }
+];

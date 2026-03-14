@@ -58,7 +58,6 @@ export default function MarketplacePage() {
               </button>
             </div>
 
-            {/* Collections Table */}
             <NFTCollectionTable
               collections={MOCK_NFT_COLLECTIONS}
               defaultCurrency="ETH"
