@@ -8,8 +8,6 @@ if (!process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID) {
 
 export const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID;
 
-
-
 export const metadata = {
   name: 'Web3 Marketplace',
   description: 'Web3 Marketplace - NFT & Digital Products Platform',

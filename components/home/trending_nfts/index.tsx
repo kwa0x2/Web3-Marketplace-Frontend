@@ -27,7 +27,6 @@ export default function TrendingNFTs() {
         </Link>
       </div>
 
-      {/* Collections Table */}
       <NFTCollectionTable
         collections={MOCK_NFT_COLLECTIONS}
         defaultCurrency="ETH"

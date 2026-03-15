@@ -18,8 +18,6 @@ createAppKit({
     analytics: false,
     onramp: false,
     swaps: false,
-    email: false, 
-    socials: [],
   },
 
   themeMode: 'dark',
