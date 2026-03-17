@@ -4,8 +4,10 @@ import { type MintStep } from '@/hooks/useNFTMint';
 const stepLabels: Record<MintStep, string> = {
   idle: 'Create Item',
   uploading: 'Uploading to IPFS...',
-  minting: 'Confirm in wallet...',
+  minting: 'Confirm mint in wallet...',
   confirming: 'Waiting for confirmation...',
+  approving: 'Approve marketplace in wallet...',
+  listing: 'Confirm listing in wallet...',
   done: 'NFT Created!',
   error: 'Try Again',
 };
@@ -21,14 +23,12 @@ interface MintStatusProps {
 export function MintStatus({ mintStep, mintError, txHash, isUploading, hasFile }: MintStatusProps) {
   return (
     <>
-      {/* Error */}
       {mintError && (
         <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-4">
           <p className="text-red-400 text-sm">{mintError}</p>
         </div>
       )}
 
-      {/* Success */}
       {txHash && mintStep === 'done' && (
         <div className="bg-green-500/10 border border-green-500/30 rounded-xl p-4 space-y-2">
           <div className="flex items-center space-x-2">
@@ -47,7 +47,6 @@ export function MintStatus({ mintStep, mintError, txHash, isUploading, hasFile }
         </div>
       )}
 
-      {/* Submit Button */}
       <button
         type="submit"
         disabled={isUploading || !hasFile}
