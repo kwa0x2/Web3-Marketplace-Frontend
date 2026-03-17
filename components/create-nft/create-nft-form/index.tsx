@@ -7,15 +7,12 @@ import { useAccount, useChainId } from 'wagmi';
 
 import { FileUpload } from '../file-upload';
 import { CollectionSelector } from '../collection-selector';
-import { CategorySelector } from '../category-selector';
 import { NFTPreviewCard } from '../nft-preview-card';
 import { nftFormSchema, type NFTFormInput, type NFTFormData } from '@/lib/validations/nft-form';
 import { useNFTMint } from '@/hooks/useNFTMint';
 
-import { chains } from './constants';
+import { chains, currencies } from './constants';
 import { NetworkInfo } from './network-info';
-import { MarketplaceToggle } from './marketplace-toggle';
-import { UnlockableContent } from './unlockable-content';
 import { AdvancedSettings } from './advanced-settings';
 import { MintStatus } from './mint-status';
 
@@ -41,15 +38,10 @@ export function CreateNFTForm() {
     defaultValues: {
       name: '',
       description: '',
-      category: '',
       collection: '',
       royalties: '10',
-      putOnMarketplace: false,
       price: '',
       currency: 'ETH',
-      expirationDays: '30',
-      unlockOnce: false,
-      unlockableContent: '',
       properties: []
     }
   });
@@ -107,9 +99,11 @@ export function CreateNFTForm() {
       file,
       name: data.name,
       description: data.description,
-      category: data.category,
+      collectionId: data.collection && data.collection !== 'new' ? data.collection : undefined,
       royalties: parseFloat(data.royalties),
       properties: data.properties?.filter(p => p.trait_type && p.value),
+      price: data.price,
+      currency: data.currency,
     });
   };
 
@@ -164,14 +158,6 @@ export function CreateNFTForm() {
           )}
         </div>
 
-        <CategorySelector
-          value={formValues.category}
-          onChange={(value) => setValue('category', value)}
-        />
-        {errors.category && (
-          <p className="mt-2 text-sm text-red-400">{errors.category.message}</p>
-        )}
-
         <CollectionSelector
           value={formValues.collection || ''}
           onChange={(value) => setValue('collection', value)}
@@ -198,18 +184,29 @@ export function CreateNFTForm() {
           )}
         </div>
 
-        <MarketplaceToggle
-          register={register}
-          putOnMarketplace={formValues.putOnMarketplace ?? false}
-          price={formValues.price ?? ''}
-          currency={formValues.currency ?? 'ETH'}
-          priceError={errors.price?.message}
-        />
-
-        <UnlockableContent
-          register={register}
-          unlockOnce={formValues.unlockOnce ?? false}
-        />
+        <div>
+          <label className="block text-white font-semibold mb-3">Price *</label>
+          <div className="flex items-center space-x-2">
+            <input
+              {...register('price')}
+              type="number"
+              placeholder="Enter price"
+              step="0.001"
+              className="flex-1 px-4 py-3 rounded-xl bg-gray-900/60 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 focus:bg-gray-900/80 transition-all"
+            />
+            <select
+              {...register('currency')}
+              className="px-4 py-3 rounded-xl bg-gray-900/60 border border-gray-600 text-white focus:outline-none focus:border-purple-500 focus:bg-gray-900/80 transition-all"
+            >
+              {currencies.map(cur => (
+                <option key={cur} value={cur}>{cur}</option>
+              ))}
+            </select>
+          </div>
+          {errors.price && (
+            <p className="mt-2 text-sm text-red-400">{errors.price.message}</p>
+          )}
+        </div>
 
         <AdvancedSettings
           showAdvanced={showAdvanced}
@@ -235,7 +232,6 @@ export function CreateNFTForm() {
         price={formValues.price}
         currency={formValues.currency}
         imagePreview={filePreview}
-        category={formValues.category}
         royalties={formValues.royalties}
         properties={formValues.properties || []}
       />

@@ -2,10 +2,14 @@
 
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { MOCK_NFT_COLLECTIONS } from "@/lib/mock_data";
-import NFTCollectionTable from "@/components/shared/nft-collection-table";
+import { useTrendingCollections } from "@/hooks/useCollections";
+import NFTCollectionTable from "@/components/nft/nft-collection-table";
+
+const MAX_TRENDING = 10;
 
 export default function TrendingNFTs() {
+  const trendingCollections = useTrendingCollections(MAX_TRENDING);
+
   return (
     <section className="max-w-[1800px] mx-auto px-8 py-16">
       <div className="flex justify-between items-center mb-8">
@@ -27,14 +31,18 @@ export default function TrendingNFTs() {
         </Link>
       </div>
 
-      <NFTCollectionTable
-        collections={MOCK_NFT_COLLECTIONS}
-        defaultCurrency="ETH"
-        theme="light"
-        showCurrencyToggle={true}
-        showTimeFilters={true}
-        defaultTimeFilter="24h"
-      />
+      {trendingCollections.length === 0 ? (
+        <div className="text-center text-gray-400 py-12">No collections found</div>
+      ) : (
+        <NFTCollectionTable
+          collections={trendingCollections}
+          defaultCurrency="ETH"
+          theme="light"
+          showCurrencyToggle={true}
+          showTimeFilters={true}
+          defaultTimeFilter="24h"
+        />
+      )}
     </section>
   );
 }

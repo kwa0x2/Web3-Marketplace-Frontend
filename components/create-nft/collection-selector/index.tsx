@@ -1,17 +1,34 @@
 'use client';
 
 import { useState } from 'react';
+import axios from 'axios';
 import { Collection, CollectionSelectorProps } from './types';
-import { MOCK_COLLECTIONS } from '@/lib/mock_data';
+import { useMyCollections } from '@/hooks/useCollections';
 import { CollectionThumbnail } from './collection-thumbnail';
 import { DropdownItem } from './dropdown-item';
 import { CreateCollectionModal } from './create-collection-modal';
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
+
+const NEW_COLLECTION: Collection = { id: 'new', name: 'Create New Collection', symbol: 'NEW', image: '', itemCount: 0 };
+
 export function CollectionSelector({ value, onChange }: CollectionSelectorProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const { collections: myCollections, refetch } = useMyCollections();
 
-  const selectedCollection = MOCK_COLLECTIONS.find(c => c.id === value) || MOCK_COLLECTIONS[0];
+  const allCollections: Collection[] = [
+    NEW_COLLECTION,
+    ...myCollections.map((c) => ({
+      id: c.id,
+      name: c.name,
+      symbol: c.symbol,
+      image: c.image || undefined,
+      itemCount: c.itemCount,
+    })),
+  ];
+
+  const selectedCollection = allCollections.find(c => c.id === value) || NEW_COLLECTION;
 
   const handleSelect = (collectionId: string) => {
     if (collectionId === 'new') {
@@ -23,16 +40,15 @@ export function CollectionSelector({ value, onChange }: CollectionSelectorProps)
     }
   };
 
-  const handleCreateCollection = (data: { name: string; symbol: string; description: string }) => {
-    const newCol: Collection = {
-      id: Date.now().toString(),
-      name: data.name,
-      symbol: data.symbol,
-      itemCount: 0
-    };
-
-    MOCK_COLLECTIONS.push(newCol);
-    onChange(newCol.id);
+  const handleCreateCollection = async (data: { name: string; symbol: string; description: string }) => {
+    try {
+      const res = await axios.post(`${API_URL}/collection`, data, { withCredentials: true });
+      const created = res.data.data;
+      onChange(created.id);
+      refetch();
+    } catch (err) {
+      console.error('Failed to create collection:', err);
+    }
     setShowCreateModal(false);
   };
 
@@ -61,7 +77,7 @@ export function CollectionSelector({ value, onChange }: CollectionSelectorProps)
 
         {isOpen && (
           <div className="absolute z-10 mt-2 w-full bg-gray-800 border border-gray-600 rounded-lg overflow-hidden">
-            {MOCK_COLLECTIONS.map((collection) => (
+            {allCollections.map((collection) => (
               <DropdownItem
                 key={collection.id}
                 collection={collection}

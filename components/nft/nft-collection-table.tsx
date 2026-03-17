@@ -1,11 +1,21 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { TrendingUp, TrendingDown, ArrowDown } from 'lucide-react';
 import { NFTCollection } from '@/lib/mock_data';
 
 const TIME_FILTERS = ['1h', '6h', '24h', '7d', '30d'];
 const CURRENCY_TYPES = ['ETH', '$'] as const;
+
+const ETH_USD = 3850;
+
+const TIME_MULTIPLIERS: Record<string, { volume: number; sales: number; floorChange: number }> = {
+  '1h':  { volume: 0.04, sales: 0.04, floorChange: 0.15 },
+  '6h':  { volume: 0.25, sales: 0.25, floorChange: 0.4 },
+  '24h': { volume: 1,    sales: 1,    floorChange: 1 },
+  '7d':  { volume: 5.5,  sales: 5.5,  floorChange: 2.2 },
+  '30d': { volume: 18,   sales: 18,   floorChange: 4.5 },
+};
 
 interface NFTCollectionTableProps {
   collections: NFTCollection[];
@@ -27,6 +37,32 @@ export default function NFTCollectionTable({
   const isDark = theme === 'dark';
   const [selectedTimeFilter, setSelectedTimeFilter] = useState(defaultTimeFilter);
   const [selectedCurrency, setSelectedCurrency] = useState<'ETH' | '$'>(defaultCurrency);
+
+  const isUsd = selectedCurrency === '$';
+  const rate = isUsd ? ETH_USD : 1;
+  const mul = TIME_MULTIPLIERS[selectedTimeFilter] ?? TIME_MULTIPLIERS['24h'];
+
+  const adjusted = useMemo(() =>
+    collections.map((c) => ({
+      ...c,
+      floorPrice: parseFloat((c.floorPrice * rate).toFixed(isUsd ? 0 : 4)),
+      topOffer: c.topOffer !== null ? parseFloat((c.topOffer * rate).toFixed(isUsd ? 0 : 4)) : null,
+      volume24h: parseFloat((c.volume24h * mul.volume * rate).toFixed(isUsd ? 0 : 2)),
+      sales24h: Math.max(1, Math.round(c.sales24h * mul.sales)),
+      floorChange24h: c.floorChange24h !== null
+        ? parseFloat((c.floorChange24h * mul.floorChange).toFixed(1))
+        : null,
+      volumeChange24h: parseFloat((c.volumeChange24h * (mul.floorChange > 1 ? 1 + (mul.floorChange - 1) * 0.3 : mul.floorChange)).toFixed(1)),
+    })),
+    [collections, mul, rate, isUsd]
+  );
+
+  const currencyLabel = isUsd ? 'USD' : 'ETH';
+
+  const formatPrice = (v: number) => {
+    if (isUsd) return `$${v.toLocaleString()}`;
+    return `${v} ETH`;
+  };
 
   return (
     <>
@@ -111,7 +147,7 @@ export default function NFTCollectionTable({
           </tr>
         </thead>
         <tbody>
-          {collections.map((collection) => (
+          {adjusted.map((collection) => (
             <tr
               key={collection.id}
               className={`border-b ${isDark ? 'border-[#1a1a1a] hover:bg-[#1a1a1a]' : 'border-white/10 hover:bg-white/5'} transition-colors cursor-pointer`}
@@ -130,13 +166,16 @@ export default function NFTCollectionTable({
                     {collection.verified && (
                       <span className="text-yellow-500 text-xs">✓</span>
                     )}
+                    {collection.isMock && (
+                      <span className="px-1.5 py-0.5 text-[10px] font-medium bg-gray-700 text-gray-400 rounded">DEMO</span>
+                    )}
                   </div>
                 </div>
               </td>
 
               <td className="px-6 py-4 text-right">
                 <span className="text-white font-medium">
-                  {collection.floorPrice} {selectedCurrency}
+                  {formatPrice(collection.floorPrice)}
                 </span>
               </td>
 
@@ -164,7 +203,7 @@ export default function NFTCollectionTable({
               <td className="px-6 py-4 text-right">
                 {collection.topOffer ? (
                   <span className="text-white">
-                    {collection.topOffer} {selectedCurrency}
+                    {formatPrice(collection.topOffer)}
                   </span>
                 ) : (
                   <span className="text-gray-600">-</span>
@@ -172,7 +211,7 @@ export default function NFTCollectionTable({
               </td>
 
               <td className="px-6 py-4 text-right">
-                <span className="text-white">{collection.sales24h}</span>
+                <span className="text-white">{collection.sales24h.toLocaleString()}</span>
               </td>
 
               <td className="px-6 py-4 text-right">
@@ -187,7 +226,7 @@ export default function NFTCollectionTable({
 
               <td className="px-6 py-4 text-right">
                 <span className="text-white font-medium">
-                  {collection.volume24h.toLocaleString()} {selectedCurrency}
+                  {isUsd ? `$${collection.volume24h.toLocaleString()}` : `${collection.volume24h.toLocaleString()} ETH`}
                 </span>
               </td>
 
