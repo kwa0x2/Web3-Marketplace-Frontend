@@ -62,11 +62,6 @@ export function NFTCard({ nft, onPurchase }: NFTCardProps) {
             />
           )}
           <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-          {nft.category && (
-            <span className="absolute top-2.5 left-2.5 px-2 py-0.5 bg-white/10 backdrop-blur-md rounded-md text-[11px] font-medium text-white/90 tracking-wide uppercase">
-              {nft.category}
-            </span>
-          )}
         </div>
 
         <div className="p-3.5">

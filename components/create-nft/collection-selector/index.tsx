@@ -6,7 +6,7 @@ import { Collection, CollectionSelectorProps } from './types';
 import { useMyCollections } from '@/hooks/useCollections';
 import { CollectionThumbnail } from './collection-thumbnail';
 import { DropdownItem } from './dropdown-item';
-import { CreateCollectionModal } from './create-collection-modal';
+import { CreateCollectionModal, CreateCollectionData } from './create-collection-modal';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
 
@@ -40,9 +40,22 @@ export function CollectionSelector({ value, onChange }: CollectionSelectorProps)
     }
   };
 
-  const handleCreateCollection = async (data: { name: string; symbol: string; description: string }) => {
+  const handleCreateCollection = async (data: CreateCollectionData) => {
     try {
-      const res = await axios.post(`${API_URL}/collection`, data, { withCredentials: true });
+      const imageUrl = data.imageFile ? '' : '';   
+      const bannerUrl = data.bannerFile ? '' : '';  
+
+      const res = await axios.post(
+        `${API_URL}/collection`,
+        {
+          name: data.name,
+          symbol: data.symbol,
+          description: data.description,
+          image: imageUrl || null,
+          banner: bannerUrl || null,
+        },
+        { withCredentials: true }
+      );
       const created = res.data.data;
       onChange(created.id);
       refetch();

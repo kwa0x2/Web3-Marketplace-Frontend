@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import { Collection } from './types';
 
 export function CollectionThumbnail({ collection }: { collection: Collection }) {
@@ -11,8 +12,16 @@ export function CollectionThumbnail({ collection }: { collection: Collection }) 
     );
   }
 
+  if (collection.image) {
+    return (
+      <div className="relative w-10 h-10 rounded-lg overflow-hidden bg-[#1a1a1a]">
+        <Image src={collection.image} alt={collection.name} fill className="object-cover" />
+      </div>
+    );
+  }
+
   return (
-    <div className="w-10 h-10 rounded-lg bg-gray-700 flex items-center justify-center">
+    <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-500/20 to-blue-500/20 flex items-center justify-center">
       <span className="text-xs font-bold text-white">{collection.symbol}</span>
     </div>
   );
