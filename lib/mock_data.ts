@@ -18,6 +18,7 @@ export interface NFTCollection {
   volume24h: number;
   volumeChange24h: number;
   isMock?: boolean;
+  dbId?: string;
 }
 
 export interface Seller {

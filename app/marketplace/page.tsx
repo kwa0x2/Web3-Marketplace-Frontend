@@ -11,19 +11,15 @@ import { useTrendingCollections } from '@/hooks/useCollections';
 
 type Tab = 'trending' | 'listing';
 
-const categories = ['All', 'art', 'music', 'photography', 'gaming', 'sports'];
-
 export default function MarketplacePage() {
   const [selectedTab, setSelectedTab] = useState<Tab>('trending');
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('All');
   const [page, setPage] = useState(1);
   const [soldIds, setSoldIds] = useState<Set<string>>(new Set());
 
   const trendingCollections = useTrendingCollections();
 
   const { nfts, pagination, isLoading, error } = useNFTList({
-    category: selectedCategory === 'All' ? undefined : selectedCategory,
     listed: true,
     page,
     limit: 20,
@@ -80,22 +76,6 @@ export default function MarketplacePage() {
           />
         ) : (
           <div>
-            <div className="flex items-center gap-3 mb-6">
-              {categories.map((cat) => (
-                <button
-                  key={cat}
-                  onClick={() => { setSelectedCategory(cat); setPage(1); }}
-                  className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                    selectedCategory === cat
-                      ? 'bg-purple-600 text-white'
-                      : 'bg-[#1a1a1a] text-gray-400 hover:bg-[#2a2a2a] hover:text-white'
-                  }`}
-                >
-                  {cat === 'All' ? 'All' : cat.charAt(0).toUpperCase() + cat.slice(1)}
-                </button>
-              ))}
-            </div>
-
             {isLoading ? (
               <div className="flex items-center justify-center py-20">
                 <Loader2 className="w-8 h-8 text-purple-500 animate-spin" />

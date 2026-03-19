@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
 import { TrendingUp, TrendingDown, ArrowDown } from 'lucide-react';
 import { NFTCollection } from '@/lib/mock_data';
 
@@ -35,6 +36,7 @@ export default function NFTCollectionTable({
   defaultTimeFilter = '24h'
 }: NFTCollectionTableProps) {
   const isDark = theme === 'dark';
+  const router = useRouter();
   const [selectedTimeFilter, setSelectedTimeFilter] = useState(defaultTimeFilter);
   const [selectedCurrency, setSelectedCurrency] = useState<'ETH' | '$'>(defaultCurrency);
 
@@ -150,7 +152,8 @@ export default function NFTCollectionTable({
           {adjusted.map((collection) => (
             <tr
               key={collection.id}
-              className={`border-b ${isDark ? 'border-[#1a1a1a] hover:bg-[#1a1a1a]' : 'border-white/10 hover:bg-white/5'} transition-colors cursor-pointer`}
+              onClick={() => collection.dbId && router.push(`/collections/${collection.dbId}`)}
+              className={`border-b ${isDark ? 'border-[#1a1a1a] hover:bg-[#1a1a1a]' : 'border-white/10 hover:bg-white/5'} transition-colors ${collection.dbId ? 'cursor-pointer' : 'cursor-default'}`}
             >
               <td className="px-6 py-4">
                 <div className="flex items-center gap-3">
