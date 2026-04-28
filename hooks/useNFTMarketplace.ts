@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useWriteContract, useReadContract, useChainId, useAccount } from 'wagmi';
+import { useWriteContract, useReadContract, useChainId, useAccount, usePublicClient } from 'wagmi';
 import { parseEther, formatEther } from 'viem';
 import { WEB3_MARKETPLACE_NFT_ABI, getNFTContractAddress } from '@/lib/contracts/Web3MarketplaceNFT';
 import axios from 'axios';
@@ -9,7 +9,7 @@ import axios from 'axios';
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
 
 export type BuyStep = 'idle' | 'buying' | 'done' | 'error';
-export type ListStep = 'idle' | 'approving' | 'listing' | 'done' | 'error';
+export type ListStep = 'idle' | 'cancelling' | 'approving' | 'listing' | 'done' | 'error';
 
 export function useNFTBuy() {
   const chainId = useChainId();
@@ -38,7 +38,6 @@ export function useNFTBuy() {
         value: priceInWei,
       });
 
-      // Update backend: clear listing, set new owner
       try {
         await axios.patch(`${API_URL}/nft/token/${tokenId}/sold`, {
           buyerAddress: address,
@@ -67,6 +66,7 @@ export function useNFTBuy() {
 
 export function useNFTList() {
   const chainId = useChainId();
+  const publicClient = usePublicClient();
   const [step, setStep] = useState<ListStep>('idle');
   const [error, setError] = useState<string | null>(null);
   const { writeContractAsync } = useWriteContract();
@@ -83,22 +83,23 @@ export function useNFTList() {
     setError(null);
 
     try {
-      await writeContractAsync({
+      const approveTx = await writeContractAsync({
         address: contractAddress,
         abi: WEB3_MARKETPLACE_NFT_ABI,
         functionName: 'approve',
         args: [contractAddress, BigInt(tokenId)],
       });
+      await publicClient!.waitForTransactionReceipt({ hash: approveTx });
 
       setStep('listing');
 
-      const priceInWei = parseEther(priceInEth);
-      await writeContractAsync({
+      const listTx = await writeContractAsync({
         address: contractAddress,
         abi: WEB3_MARKETPLACE_NFT_ABI,
         functionName: 'listItem',
-        args: [BigInt(tokenId), priceInWei],
+        args: [BigInt(tokenId), parseEther(priceInEth)],
       });
+      await publicClient!.waitForTransactionReceipt({ hash: listTx });
 
       setStep('done');
       return true;
@@ -118,20 +119,69 @@ export function useNFTList() {
       return false;
     }
 
-    setStep('idle');
+    setStep('cancelling');
     setError(null);
 
     try {
-      await writeContractAsync({
+      const tx = await writeContractAsync({
         address: contractAddress,
         abi: WEB3_MARKETPLACE_NFT_ABI,
         functionName: 'cancelListing',
         args: [BigInt(tokenId)],
       });
+      await publicClient!.waitForTransactionReceipt({ hash: tx });
 
       return true;
     } catch (err: any) {
       const message = err?.shortMessage || err?.message || 'Failed to cancel listing';
+      setError(message);
+      setStep('error');
+      return false;
+    }
+  };
+
+  const update = async (tokenId: number, newPriceInEth: string) => {
+    const contractAddress = getNFTContractAddress(chainId);
+    if (!contractAddress) {
+      setError('Contract not deployed on this network');
+      setStep('error');
+      return false;
+    }
+
+    setStep('cancelling');
+    setError(null);
+
+    try {
+      const cancelTx = await writeContractAsync({
+        address: contractAddress,
+        abi: WEB3_MARKETPLACE_NFT_ABI,
+        functionName: 'cancelListing',
+        args: [BigInt(tokenId)],
+      });
+      await publicClient!.waitForTransactionReceipt({ hash: cancelTx });
+
+      setStep('approving');
+      const approveTx = await writeContractAsync({
+        address: contractAddress,
+        abi: WEB3_MARKETPLACE_NFT_ABI,
+        functionName: 'approve',
+        args: [contractAddress, BigInt(tokenId)],
+      });
+      await publicClient!.waitForTransactionReceipt({ hash: approveTx });
+
+      setStep('listing');
+      const listTx = await writeContractAsync({
+        address: contractAddress,
+        abi: WEB3_MARKETPLACE_NFT_ABI,
+        functionName: 'listItem',
+        args: [BigInt(tokenId), parseEther(newPriceInEth)],
+      });
+      await publicClient!.waitForTransactionReceipt({ hash: listTx });
+
+      setStep('done');
+      return true;
+    } catch (err: any) {
+      const message = err?.shortMessage || err?.message || 'Failed to update listing';
       setError(message);
       setStep('error');
       return false;
@@ -143,7 +193,7 @@ export function useNFTList() {
     setError(null);
   };
 
-  return { list, cancel, step, error, reset };
+  return { list, cancel, update, step, error, reset };
 }
 
 export function useNFTListing(tokenId: number | null | undefined) {
@@ -164,7 +214,7 @@ export function useNFTListing(tokenId: number | null | undefined) {
     ? {
         seller: data[0] as string,
         price: data[1] as bigint,
-        isListed: (data[1] as bigint) > 0n,
+        isListed: (data[1] as bigint) > BigInt(0),
         priceInEth: formatEther(data[1] as bigint),
       }
     : null;

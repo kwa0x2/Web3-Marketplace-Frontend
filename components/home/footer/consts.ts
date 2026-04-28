@@ -10,7 +10,7 @@ export const myAccountLinks = [
   { label: "Profile", href: "/profile" },
   { label: "My NFTs", href: "/profile" },
   { label: "My Favorites", href: "#" },
-  { label: "Wallet", href: "/dashboard" },
+  { label: "Wallet", href: "/profile" },
   { label: "Create NFT", href: "#" },
 ];
 

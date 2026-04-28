@@ -1,156 +1,110 @@
 'use client';
 
+import { useState, useMemo } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useAccount } from 'wagmi';
-import { AccountInfo } from '@/components/wallet/account_info';
+import { useProfileNFTs } from '@/hooks/useProfileNFTs';
 import { Navigation } from '@/components/home';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import Link from 'next/link';
+import { ListForSaleModal } from '@/components/nft/list-for-sale-modal';
+import { NFTCardData } from '@/components/nft/nft-card';
+import {
+  ProfileBanner,
+  ProfileNotConnected,
+  ProfileHeader,
+  ProfileStats,
+  ProfileTabs,
+  ProfileTab,
+  ProfileNFTGrid,
+} from '@/components/profile';
 
 export default function ProfilePage() {
-  const { isConnected, isAuthenticated, authenticate, isLoading, error, address } = useAuth();
+  const { isConnected, isAuthenticated, authenticate, isLoading: authLoading, error: authError, address } = useAuth();
   const { chain } = useAccount();
+
+  const [activeTab, setActiveTab] = useState<ProfileTab>('owned');
+  const [copied, setCopied] = useState(false);
+  const [listModalNFT, setListModalNFT] = useState<NFTCardData | null>(null);
+
+  const { nfts: ownedNFTs, isLoading, error, refetch } = useProfileNFTs();
+
+  const listedNFTs = useMemo(
+    () => ownedNFTs.filter((n) => n.price != null && n.price > 0),
+    [ownedNFTs]
+  );
+
+  const currentNFTs = activeTab === 'owned' ? ownedNFTs : listedNFTs;
+
+  const handleTabChange = (tab: ProfileTab) => setActiveTab(tab);
+
+  const handleCopyAddress = () => {
+    if (!address) return;
+    navigator.clipboard.writeText(address);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const shortAddress = address ? `${address.slice(0, 6)}...${address.slice(-4)}` : '';
+  const explorerBase = chain?.id === 11155111 ? 'https://sepolia.etherscan.io' : 'https://etherscan.io';
 
   if (!isConnected) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-900 via-blue-900 to-black">
-        <Card className="w-full max-w-md">
-          <CardHeader>
-            <CardTitle>Connect Your Wallet</CardTitle>
-            <CardDescription>
-              Please connect your wallet to access your profile
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-center text-sm text-gray-500 mb-4">
-              Use the Connect Wallet button in the navigation to get started.
-            </p>
-            <Link href="/">
-              <Button className="w-full">Go to Home</Button>
-            </Link>
-          </CardContent>
-        </Card>
+      <div className="min-h-screen bg-black">
+        <Navigation />
+        <ProfileNotConnected />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-black">
+    <div className="min-h-screen bg-black">
       <Navigation />
-      <div className="py-12 px-8">
-        <div className="max-w-6xl mx-auto space-y-6">
-        <div className="flex items-center justify-between">
-          <h1 className="text-4xl font-bold text-white">Profile</h1>
-          {isAuthenticated ? (
-            <Badge variant="outline" className="bg-green-500/10 text-green-500 border-green-500">
-              Authenticated
-            </Badge>
-          ) : (
-            <Badge variant="outline" className="bg-yellow-500/10 text-yellow-500 border-yellow-500">
-              Not Authenticated
-            </Badge>
-          )}
-        </div>
+      <ProfileBanner />
 
-        <AccountInfo />
+      <div className="max-w-[1800px] mx-auto px-6 md:px-8 -mt-16 relative z-10">
+        <ProfileHeader
+          address={address!}
+          shortAddress={shortAddress}
+          isAuthenticated={isAuthenticated}
+          isAuthLoading={authLoading}
+          authError={authError}
+          copied={copied}
+          chainName={chain?.name}
+          explorerBase={explorerBase}
+          onCopy={handleCopyAddress}
+          onAuthenticate={authenticate}
+        />
 
-        {!isAuthenticated && (
-          <Card>
-            <CardHeader>
-              <CardTitle>Authenticate Your Wallet</CardTitle>
-              <CardDescription>
-                Sign a message to verify ownership of your wallet and access protected features
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <Button
-                onClick={authenticate}
-                disabled={isLoading}
-                className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
-              >
-                {isLoading ? 'Signing...' : 'Sign Message to Authenticate'}
-              </Button>
+        <ProfileStats
+          ownedCount={ownedNFTs.length}
+          listedCount={listedNFTs.length}
+          isLoading={isLoading}
+        />
 
-              {error && (
-                <div className="p-3 bg-red-500/10 border border-red-500 rounded-md">
-                  <p className="text-sm text-red-500">{error}</p>
-                </div>
-              )}
+        <ProfileTabs
+          activeTab={activeTab}
+          ownedCount={ownedNFTs.length}
+          listedCount={listedNFTs.length}
+          onChange={handleTabChange}
+        />
 
-              <div className="text-sm text-gray-500 space-y-2">
-                <p>This will:</p>
-                <ul className="list-disc list-inside space-y-1 ml-2">
-                  <li>Request a signature from your wallet</li>
-                  <li>Not cost any gas fees</li>
-                  <li>Not trigger any blockchain transactions</li>
-                  <li>Verify you own this wallet address</li>
-                </ul>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {isAuthenticated && (
-          <>
-            <Card>
-              <CardHeader>
-                <CardTitle>Account Information</CardTitle>
-                <CardDescription>
-                  Your verified wallet information
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <p className="text-sm text-gray-400 mb-1">Wallet Address</p>
-                      <p className="text-white font-mono text-sm break-all">{address}</p>
-                    </div>
-                    {chain && (
-                      <div>
-                        <p className="text-sm text-gray-400 mb-1">Network</p>
-                        <p className="text-white">{chain.name}</p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Marketplace Access</CardTitle>
-                <CardDescription>
-                  Features available to authenticated users
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="p-4 bg-gradient-to-r from-purple-500/10 to-blue-500/10 rounded-lg border border-purple-500/20">
-                  <h3 className="font-semibold text-white mb-2">Welcome, {address?.slice(0, 6)}...{address?.slice(-4)}</h3>
-                  <p className="text-sm text-gray-300">
-                    You now have access to all marketplace features including:
-                  </p>
-                  <ul className="list-disc list-inside text-sm text-gray-300 mt-2 space-y-1">
-                    <li>Create and list NFTs</li>
-                    <li>Buy and sell digital products</li>
-                    <li>Manage your collections</li>
-                    <li>Access exclusive features</li>
-                  </ul>
-                </div>
-              </CardContent>
-            </Card>
-          </>
-        )}
-
-        <div className="flex justify-center">
-          <Link href="/">
-            <Button variant="outline">Back to Home</Button>
-          </Link>
-        </div>
-        </div>
+        <ProfileNFTGrid
+          nfts={currentNFTs}
+          activeTab={activeTab}
+          isLoading={isLoading}
+          error={error}
+          isAuthenticated={isAuthenticated}
+          onListNFT={setListModalNFT}
+          onTabChange={handleTabChange}
+        />
       </div>
+
+      {listModalNFT && (
+        <ListForSaleModal
+          nft={listModalNFT}
+          onClose={() => setListModalNFT(null)}
+          onSuccess={refetch}
+        />
+      )}
     </div>
   );
 }
