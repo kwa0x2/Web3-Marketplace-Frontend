@@ -6,7 +6,7 @@ import axios from 'axios';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
 
-export type MintStep = 'idle' | 'uploading' | 'minting' | 'confirming' | 'approving' | 'listing' | 'done' | 'error';
+export type MintStep = 'idle' | 'uploading' | 'minting' | 'confirming' | 'approving' | 'listing' | 'saving' | 'done' | 'error';
 
 interface MintParams {
   file: File;
@@ -21,7 +21,7 @@ interface MintParams {
 }
 
 interface MintResult {
-  tokenId?: string;
+  tokenId?: number;
   metadataUri?: string;
   fileUri?: string;
   txHash?: string;
@@ -56,19 +56,8 @@ export function useNFTMint() {
       formData.append('description', params.description || '');
       formData.append('category', params.category || '');
       formData.append('royalties', params.royalties.toString());
-      formData.append('chainId', chainId.toString());
-      formData.append('contractAddress', contractAddress);
-      if (params.collectionId) {
-        formData.append('collectionId', params.collectionId);
-      }
       if (params.properties && params.properties.length > 0) {
         formData.append('properties', JSON.stringify(params.properties));
-      }
-      if (params.price) {
-        formData.append('price', params.price);
-      }
-      if (params.currency) {
-        formData.append('currency', params.currency);
       }
 
       const uploadRes = await axios.post(`${API_URL}/nft/upload`, formData, {
@@ -76,7 +65,7 @@ export function useNFTMint() {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
 
-      const { id: nftId, metadataUri } = uploadRes.data.data;
+      const { fileUri, metadataUri } = uploadRes.data.data;
 
       setStep('minting');
       const royaltyBps = BigInt(Math.round(params.royalties * 100));
@@ -96,12 +85,7 @@ export function useNFTMint() {
       });
 
       setStep('confirming');
-
       await publicClient!.waitForTransactionReceipt({ hash: txHash });
-
-      await axios.patch(`${API_URL}/nft/${nftId}/mint`, { txHash, tokenId }, {
-        withCredentials: true,
-      });
 
       if (params.price && parseFloat(params.price) > 0) {
         const isApproved = await publicClient!.readContract({
@@ -132,9 +116,27 @@ export function useNFTMint() {
         });
       }
 
-      const mintResult: MintResult = {
+      setStep('saving');
+      await axios.post(`${API_URL}/nft`, {
+        name: params.name,
+        description: params.description || '',
+        category: params.category || '',
+        fileUri,
         metadataUri,
-        fileUri: uploadRes.data.data.fileUri,
+        royalties: params.royalties.toString(),
+        chainId: chainId.toString(),
+        contractAddress,
+        collectionId: params.collectionId || null,
+        price: params.price || null,
+        currency: params.currency || null,
+        txHash,
+        tokenId,
+      }, { withCredentials: true });
+
+      const mintResult: MintResult = {
+        tokenId,
+        metadataUri,
+        fileUri,
         txHash,
       };
 

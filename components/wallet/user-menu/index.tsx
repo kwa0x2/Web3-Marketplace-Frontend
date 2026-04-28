@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useAppKit } from '@reown/appkit/react';
 import Link from 'next/link';
-import { ChevronDown, User, LayoutDashboard, LogOut, Wallet } from 'lucide-react';
+import { ChevronDown, User, LogOut, Wallet } from 'lucide-react';
 import { useDisconnect } from 'wagmi';
 import { Button } from '@/components/ui/button';
 
@@ -72,17 +72,6 @@ export function UserMenu() {
           </div>
 
           <div className="py-2">
-            {isAuthenticated && (
-              <Link
-                href="/dashboard"
-                onClick={() => setIsOpen(false)}
-                className="flex items-center space-x-3 px-4 py-2.5 hover:bg-white/5 transition-colors"
-              >
-                <LayoutDashboard className="w-4 h-4 text-purple-400" />
-                <span className="text-white">Dashboard</span>
-              </Link>
-            )}
-
             <Link
               href="/profile"
               onClick={() => setIsOpen(false)}

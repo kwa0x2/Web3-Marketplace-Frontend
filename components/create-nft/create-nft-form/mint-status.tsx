@@ -8,6 +8,7 @@ const stepLabels: Record<MintStep, string> = {
   confirming: 'Waiting for confirmation...',
   approving: 'Approve marketplace in wallet...',
   listing: 'Confirm listing in wallet...',
+  saving: 'Saving to database...',
   done: 'NFT Created!',
   error: 'Try Again',
 };
