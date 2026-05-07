@@ -1,5 +1,7 @@
 'use client';
 
+import { Check } from 'lucide-react';
+
 interface Step {
   number: number;
   label: string;
@@ -12,43 +14,34 @@ interface StepIndicatorProps {
 
 export function StepIndicator({ steps }: StepIndicatorProps) {
   return (
-    <div className="flex items-center justify-center mb-12">
-      <div className="flex items-center space-x-4">
-        {steps.map((step, index) => (
-          <div key={step.number} className="flex items-center">
-            <div className="flex items-center">
-              <div
-                className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-all duration-300 ${
-                  step.status === 'completed'
-                    ? 'bg-green-600 text-white'
-                    : step.status === 'current'
-                    ? 'bg-purple-600 text-white'
-                    : 'bg-gray-700 text-gray-400'
-                }`}
-              >
-                {step.status === 'completed' ? (
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                  </svg>
-                ) : (
-                  step.number
-                )}
-              </div>
-              <span className="ml-2 text-white font-medium hidden sm:inline">
-                {step.label}
-              </span>
+    <div className="flex items-center justify-center mb-10">
+      {steps.map((step, index) => (
+        <div key={step.number} className="flex items-center">
+          <div className="flex items-center gap-2.5">
+            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 ${
+              step.status === 'completed'
+                ? 'bg-green-500 text-white'
+                : step.status === 'current'
+                ? 'bg-purple-600 text-white ring-4 ring-purple-600/20'
+                : 'bg-white/[0.06] text-gray-600 ring-1 ring-white/[0.08]'
+            }`}>
+              {step.status === 'completed' ? <Check className="w-4 h-4" /> : step.number}
             </div>
-
-            {index < steps.length - 1 && (
-              <div
-                className={`w-12 h-0.5 mx-4 transition-all duration-300 ${
-                  step.status === 'completed' ? 'bg-green-600' : 'bg-gray-700'
-                }`}
-              />
-            )}
+            <span className={`text-sm font-medium hidden sm:block ${
+              step.status === 'current' ? 'text-white' :
+              step.status === 'completed' ? 'text-green-400' : 'text-gray-600'
+            }`}>
+              {step.label}
+            </span>
           </div>
-        ))}
-      </div>
+
+          {index < steps.length - 1 && (
+            <div className={`w-16 h-px mx-4 transition-all duration-300 ${
+              step.status === 'completed' ? 'bg-green-500/50' : 'bg-white/[0.08]'
+            }`} />
+          )}
+        </div>
+      ))}
     </div>
   );
 }

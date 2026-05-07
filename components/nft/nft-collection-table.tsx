@@ -3,7 +3,7 @@
 import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { TrendingUp, TrendingDown, ArrowDown } from 'lucide-react';
-import { NFTCollection } from '@/lib/mock_data';
+import { NFTCollection } from '@/hooks/useCollections';
 
 const TIME_FILTERS = ['1h', '6h', '24h', '7d', '30d'];
 const CURRENCY_TYPES = ['ETH', '$'] as const;

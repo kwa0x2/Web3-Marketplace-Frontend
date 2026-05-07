@@ -4,15 +4,14 @@ import { useState } from 'react';
 import { useWriteContract, useReadContract, useChainId, useAccount, usePublicClient } from 'wagmi';
 import { parseEther, formatEther } from 'viem';
 import { WEB3_MARKETPLACE_NFT_ABI, getNFTContractAddress } from '@/lib/contracts/Web3MarketplaceNFT';
-import axios from 'axios';
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
+import apiClient from '@/api/axios';
 
 export type BuyStep = 'idle' | 'buying' | 'done' | 'error';
 export type ListStep = 'idle' | 'cancelling' | 'approving' | 'listing' | 'done' | 'error';
 
 export function useNFTBuy() {
   const chainId = useChainId();
+  const publicClient = usePublicClient();
   const { address } = useAccount();
   const [step, setStep] = useState<BuyStep>('idle');
   const [error, setError] = useState<string | null>(null);
@@ -30,7 +29,7 @@ export function useNFTBuy() {
     setError(null);
 
     try {
-      await writeContractAsync({
+      const tx = await writeContractAsync({
         address: contractAddress,
         abi: WEB3_MARKETPLACE_NFT_ABI,
         functionName: 'buyItem',
@@ -38,10 +37,12 @@ export function useNFTBuy() {
         value: priceInWei,
       });
 
+      await publicClient!.waitForTransactionReceipt({ hash: tx });
+
       try {
-        await axios.patch(`${API_URL}/nft/token/${tokenId}/sold`, {
+        await apiClient.patch(`/nft/token/${tokenId}/sold`, {
           buyerAddress: address,
-        }, { withCredentials: true });
+        });
       } catch {
         // Non-critical: on-chain is the source of truth
       }
@@ -152,13 +153,18 @@ export function useNFTList() {
     setError(null);
 
     try {
-      const cancelTx = await writeContractAsync({
-        address: contractAddress,
-        abi: WEB3_MARKETPLACE_NFT_ABI,
-        functionName: 'cancelListing',
-        args: [BigInt(tokenId)],
-      });
-      await publicClient!.waitForTransactionReceipt({ hash: cancelTx });
+      // best-effort cancel — if the NFT isn't listed on-chain we can still re-list
+      try {
+        const cancelTx = await writeContractAsync({
+          address: contractAddress,
+          abi: WEB3_MARKETPLACE_NFT_ABI,
+          functionName: 'cancelListing',
+          args: [BigInt(tokenId)],
+        });
+        await publicClient!.waitForTransactionReceipt({ hash: cancelTx });
+      } catch {
+        // not listed on-chain or already cancelled — continue to approve + list
+      }
 
       setStep('approving');
       const approveTx = await writeContractAsync({

@@ -1,14 +1,17 @@
 "use client";
 
 import { brandName, navigationLinks } from "./consts";
-import { Link } from "react-scroll";
+import { Link as ScrollLink } from "react-scroll";
 import NextLink from "next/link";
+import { usePathname } from "next/navigation";
 import { WalletButton } from "@/components/wallet/wallet_button";
 import { UserMenu } from "@/components/wallet/user-menu";
 import { useAuth } from "@/hooks/useAuth";
 
 export default function Navigation() {
   const { isConnected } = useAuth();
+  const pathname = usePathname();
+  const isHome = pathname === '/';
 
   return (
     <nav className="border-b border-white/10 backdrop-blur-sm bg-black/20 sticky top-0 z-50">
@@ -22,6 +25,7 @@ export default function Navigation() {
               </div>
             </NextLink>
           </div>
+
           <div className="hidden md:flex space-x-8">
             {navigationLinks.map((link, index) =>
               link.isRoute ? (
@@ -32,8 +36,8 @@ export default function Navigation() {
                 >
                   {link.label}
                 </NextLink>
-              ) : (
-                <Link
+              ) : isHome ? (
+                <ScrollLink
                   key={index}
                   to={link.href}
                   spy={true}
@@ -43,16 +47,21 @@ export default function Navigation() {
                   className="text-gray-300 hover:text-white transition cursor-pointer"
                 >
                   {link.label}
-                </Link>
+                </ScrollLink>
+              ) : (
+                <NextLink
+                  key={index}
+                  href={`/#${link.href}`}
+                  className="text-gray-300 hover:text-white transition cursor-pointer"
+                >
+                  {link.label}
+                </NextLink>
               )
             )}
           </div>
+
           <div className="flex items-center space-x-4">
-            {isConnected ? (
-              <UserMenu />
-            ) : (
-              <WalletButton />
-            )}
+            {isConnected ? <UserMenu /> : <WalletButton />}
           </div>
         </div>
       </div>

@@ -3,6 +3,7 @@ export interface User {
   address: string;
   chainId?: number;
   avatar?: string;
+  banner?: string;
   bio?: string;
   website?: string;
   twitter?: string;

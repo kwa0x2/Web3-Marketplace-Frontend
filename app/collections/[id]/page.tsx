@@ -6,16 +6,20 @@ import { useAccount } from 'wagmi';
 import { Navigation } from '@/components/home';
 import { NFTCard } from '@/components/nft/nft-card';
 import { useCollection } from '@/hooks/useCollections';
-import { CollectionHeader, CollectionStats, CollectionAbout, CollectionSkeleton } from '@/components/collection';
+import { CollectionHeader, CollectionStats, CollectionAbout, CollectionSkeleton, EditCollectionModal } from '@/components/collection';
+import { collectionService } from '@/api/services/collection.service';
 import { ArrowLeft, Info, LayoutGrid, Tag, User } from 'lucide-react';
 
 type Tab = 'all' | 'listed' | 'owned' | 'about';
 
 export default function CollectionDetailPage({ params }: { params: { id: string } }) {
   const { id } = params;
-  const { collection, isLoading, error } = useCollection(id);
+  const { collection, isLoading, error, refetch } = useCollection(id);
   const { address } = useAccount();
   const [activeTab, setActiveTab] = useState<Tab>('all');
+  const [showEditModal, setShowEditModal] = useState(false);
+
+  const isOwner = !!(address && collection && collection.ownerAddress.toLowerCase() === address.toLowerCase());
 
   const filteredNfts = useMemo(() => {
     if (!collection) return [];
@@ -30,6 +34,11 @@ export default function CollectionDetailPage({ params }: { params: { id: string 
         return collection.nfts;
     }
   }, [collection, activeTab, address]);
+
+  const handleSaveImages = async (formData: FormData) => {
+    await collectionService.updateImages(id, formData);
+    await refetch();
+  };
 
   const tabs: { key: Tab; label: string; icon: React.ReactNode }[] = [
     { key: 'all', label: 'All', icon: <LayoutGrid className="w-4 h-4" /> },
@@ -59,7 +68,11 @@ export default function CollectionDetailPage({ params }: { params: { id: string 
           </div>
         ) : collection ? (
           <>
-            <CollectionHeader collection={collection} />
+            <CollectionHeader
+              collection={collection}
+              isOwner={isOwner}
+              onEditClick={() => setShowEditModal(true)}
+            />
             <CollectionStats stats={collection.stats} />
 
             <div className="flex items-center gap-2 mb-6 border-b border-white/[0.06] pb-px">
@@ -86,7 +99,7 @@ export default function CollectionDetailPage({ params }: { params: { id: string 
             </div>
 
             {activeTab === 'about' ? (
-              <CollectionAbout collection={collection} />
+              <CollectionAbout collection={collection} isOwner={isOwner} onDescriptionSaved={refetch} />
             ) : filteredNfts.length === 0 ? (
               <div className="text-center py-20">
                 <p className="text-gray-500 text-lg">
@@ -103,6 +116,14 @@ export default function CollectionDetailPage({ params }: { params: { id: string 
                   <NFTCard key={nft.id} nft={nft} />
                 ))}
               </div>
+            )}
+
+            {showEditModal && (
+              <EditCollectionModal
+                collection={collection}
+                onClose={() => setShowEditModal(false)}
+                onSave={handleSaveImages}
+              />
             )}
           </>
         ) : null}

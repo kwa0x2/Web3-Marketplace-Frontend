@@ -62,7 +62,7 @@ export function NFTDetailModal({ nft, onClose, onPurchase }: NFTDetailModalProps
   };
 
   const handleBuy = async () => {
-    if (!nft.tokenId) return;
+    if (nft.tokenId == null) return;
 
     if (buyStep === 'error') {
       resetBuy();

@@ -52,6 +52,13 @@ class AuthService {
     return data;
   }
 
+  async updateProfile(formData: FormData): Promise<MeResponse> {
+    const { data } = await axios.put<MeResponse>(`${this.BASE_PATH}/profile`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return data;
+  }
+
   async logout(): Promise<void> {
     await axios.post(`${this.BASE_PATH}/logout`);
   }

@@ -61,7 +61,7 @@ export function NFTPreviewCard({
                     <p className="text-xs text-gray-400 mb-1">Price</p>
                     <div className="flex items-baseline space-x-1">
                       <span className="text-lg font-bold text-purple-400">{price}</span>
-                      <span className="text-sm text-gray-400">{currency || 'ETH'}</span>
+                      <span className="text-sm text-gray-400">ETH</span>
                     </div>
                   </div>
                 )}

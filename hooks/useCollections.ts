@@ -1,10 +1,25 @@
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import axios from 'axios';
-import { MOCK_NFT_COLLECTIONS, NFTCollection } from '@/lib/mock_data';
+import apiClient from '@/api/axios';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
+export interface NFTCollection {
+  id: number;
+  name: string;
+  verified: boolean;
+  image: string;
+  floorPrice: number;
+  floorChange24h: number | null;
+  topOffer: number | null;
+  sales24h: number;
+  owners: number;
+  listed: number;
+  volume24h: number;
+  volumeChange24h: number;
+  isMock?: boolean;
+  dbId?: string;
+}
+
 
 export interface CollectionData {
   id: string;
@@ -12,6 +27,7 @@ export interface CollectionData {
   symbol: string;
   description?: string | null;
   image?: string | null;
+  banner?: string | null;
   verified: boolean;
   ownerAddress: string;
   itemCount: number;
@@ -30,7 +46,7 @@ export function useCollections() {
     setIsLoading(true);
     setError(null);
     try {
-      const res = await axios.get(`${API_URL}/collection`);
+      const res = await apiClient.get('/collection');
       setCollections(res.data.data);
     } catch (err: any) {
       console.error('Failed to fetch collections:', err);
@@ -47,17 +63,36 @@ export function useCollections() {
   return { collections, isLoading, error, refetch: fetchCollections };
 }
 
+export interface MyCollectionData {
+  id: string;
+  name: string;
+  symbol: string;
+  description?: string | null;
+  image?: string | null;
+  banner?: string | null;
+  verified: boolean;
+  itemCount: number;
+  floorPrice: number;
+  listedCount: number;
+  createdAt: string;
+}
+
 export function useMyCollections() {
-  const [collections, setCollections] = useState<{ id: string; name: string; symbol: string; image?: string | null; itemCount: number }[]>([]);
+  const [collections, setCollections] = useState<MyCollectionData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const fetchMyCollections = useCallback(async () => {
     setIsLoading(true);
+    setError(null);
     try {
-      const res = await axios.get(`${API_URL}/collection/my`, { withCredentials: true });
-      setCollections(res.data.data);
-    } catch {
-      // not logged in or no collections
+      const res = await apiClient.get('/collection/my');
+      setCollections(res.data.data || []);
+    } catch (err: any) {
+      const raw = err.response?.data?.error || 'Failed to fetch collections';
+      setError(raw === 'No session found' || raw === 'Invalid or expired session'
+        ? 'Session not found. Please verify your wallet or logout and login again.'
+        : raw);
     } finally {
       setIsLoading(false);
     }
@@ -67,7 +102,7 @@ export function useMyCollections() {
     fetchMyCollections();
   }, [fetchMyCollections]);
 
-  return { collections, isLoading, refetch: fetchMyCollections };
+  return { collections, isLoading, error, refetch: fetchMyCollections };
 }
 
 export interface CollectionStats {
@@ -102,7 +137,7 @@ export function useCollection(id: string) {
     setIsLoading(true);
     setError(null);
     try {
-      const res = await axios.get(`${API_URL}/collection/${id}`);
+      const res = await apiClient.get(`/collection/${id}`);
       setCollection(res.data.data);
     } catch (err: any) {
       console.error('Failed to fetch collection:', err);
@@ -123,10 +158,8 @@ export function useTrendingCollections(limit?: number) {
   const { collections } = useCollections();
 
   const trendingCollections: NFTCollection[] = useMemo(() => {
-    const examples = MOCK_NFT_COLLECTIONS;
-
     const real: NFTCollection[] = collections.map((c, i) => ({
-      id: examples.length + i + 1,
+      id: i + 1,
       dbId: c.id,
       name: c.name,
       verified: c.verified,
@@ -141,8 +174,7 @@ export function useTrendingCollections(limit?: number) {
       volumeChange24h: 0,
     }));
 
-    const all = [...examples, ...real];
-    return limit ? all.slice(0, limit) : all;
+    return limit ? real.slice(0, limit) : real;
   }, [collections, limit]);
 
   return trendingCollections;

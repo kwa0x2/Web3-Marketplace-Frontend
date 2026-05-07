@@ -1,10 +1,8 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
+import apiClient from '@/api/axios';
 import { NFTCardData } from '@/components/nft/nft-card';
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
 
 interface UseNFTListParams {
   category?: string;
@@ -39,7 +37,7 @@ export function useNFTList(params: UseNFTListParams = {}) {
       if (params.page) query.set('page', params.page.toString());
       if (params.limit) query.set('limit', params.limit.toString());
 
-      const res = await axios.get(`${API_URL}/nft?${query.toString()}`);
+      const res = await apiClient.get(`/nft?${query.toString()}`);
       setNfts(res.data.data);
       setPagination(res.data.pagination);
     } catch (err: any) {

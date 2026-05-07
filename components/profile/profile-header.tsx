@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Check, Copy, ExternalLink, Loader2, Plus } from 'lucide-react';
+import { Check, Copy, ExternalLink, Loader2, Plus, Pencil } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 
@@ -14,8 +14,10 @@ interface ProfileHeaderProps {
   copied: boolean;
   chainName?: string;
   explorerBase: string;
+  avatarUrl?: string | null;
   onCopy: () => void;
   onAuthenticate: () => void;
+  onEditProfile?: () => void;
 }
 
 export function ProfileHeader({
@@ -27,21 +29,31 @@ export function ProfileHeader({
   copied,
   chainName,
   explorerBase,
+  avatarUrl,
   onCopy,
   onAuthenticate,
+  onEditProfile,
 }: ProfileHeaderProps) {
   return (
     <>
       <div className="flex flex-col md:flex-row items-start md:items-end gap-5">
         {/* Avatar */}
-        <div className="relative">
+        <div className="relative group">
           <div className="w-28 h-28 rounded-2xl bg-gradient-to-br from-purple-600 via-blue-600 to-cyan-500 p-[3px] shadow-xl shadow-purple-500/20">
             <div className="w-full h-full rounded-[13px] bg-[#0a0a0a] flex items-center justify-center overflow-hidden">
-              <div className="w-full h-full bg-gradient-to-br from-purple-500/20 to-blue-500/20 flex items-center justify-center">
-                <span className="text-3xl font-bold text-white/80">
-                  {address?.slice(2, 4).toUpperCase()}
-                </span>
-              </div>
+              {avatarUrl ? (
+                <img
+                  src={avatarUrl}
+                  alt="Avatar"
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full bg-gradient-to-br from-purple-500/20 to-blue-500/20 flex items-center justify-center">
+                  <span className="text-3xl font-bold text-white/80">
+                    {address?.slice(2, 4).toUpperCase()}
+                  </span>
+                </div>
+              )}
             </div>
           </div>
           {isAuthenticated && (
@@ -113,12 +125,22 @@ export function ProfileHeader({
               )}
             </Button>
           ) : (
-            <Link href="/create">
-              <Button className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 gap-2">
-                <Plus className="w-4 h-4" />
-                Create NFT
+            <>
+              <Button
+                variant="outline"
+                className="border-white/10 text-gray-300 hover:text-white gap-2"
+                onClick={onEditProfile}
+              >
+                <Pencil className="w-4 h-4" />
+                Edit Profile
               </Button>
-            </Link>
+              <Link href="/create">
+                <Button className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 gap-2">
+                  <Plus className="w-4 h-4" />
+                  Create NFT
+                </Button>
+              </Link>
+            </>
           )}
         </div>
       </div>

@@ -1,19 +1,21 @@
-import { ShoppingBag, Tag } from 'lucide-react';
+import { ShoppingBag, Tag, LayoutGrid } from 'lucide-react';
 
 interface ProfileStatsProps {
   ownedCount: number;
   listedCount: number;
+  collectionsCount: number;
   isLoading: boolean;
 }
 
-export function ProfileStats({ ownedCount, listedCount, isLoading }: ProfileStatsProps) {
+export function ProfileStats({ ownedCount, listedCount, collectionsCount, isLoading }: ProfileStatsProps) {
   const stats = [
     { label: 'Owned', value: ownedCount, icon: ShoppingBag, color: 'blue' },
     { label: 'Listed', value: listedCount, icon: Tag, color: 'emerald' },
+    { label: 'Collections', value: collectionsCount, icon: LayoutGrid, color: 'purple' },
   ];
 
   return (
-    <div className="grid grid-cols-2 gap-3 mt-8 max-w-xs">
+    <div className="grid grid-cols-3 gap-3 mt-8 max-w-sm">
       {stats.map((stat) => (
         <div
           key={stat.label}

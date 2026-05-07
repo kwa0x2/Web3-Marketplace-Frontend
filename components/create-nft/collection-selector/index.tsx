@@ -1,14 +1,12 @@
 'use client';
 
 import { useState } from 'react';
-import axios from 'axios';
+import apiClient from '@/api/axios';
 import { Collection, CollectionSelectorProps } from './types';
 import { useMyCollections } from '@/hooks/useCollections';
 import { CollectionThumbnail } from './collection-thumbnail';
 import { DropdownItem } from './dropdown-item';
 import { CreateCollectionModal, CreateCollectionData } from './create-collection-modal';
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
 
 const NEW_COLLECTION: Collection = { id: 'new', name: 'Create New Collection', symbol: 'NEW', image: '', itemCount: 0 };
 
@@ -45,17 +43,13 @@ export function CollectionSelector({ value, onChange }: CollectionSelectorProps)
       const imageUrl = data.imageFile ? '' : '';   
       const bannerUrl = data.bannerFile ? '' : '';  
 
-      const res = await axios.post(
-        `${API_URL}/collection`,
-        {
-          name: data.name,
-          symbol: data.symbol,
-          description: data.description,
-          image: imageUrl || null,
-          banner: bannerUrl || null,
-        },
-        { withCredentials: true }
-      );
+      const res = await apiClient.post('/collection', {
+        name: data.name,
+        symbol: data.symbol,
+        description: data.description,
+        image: imageUrl || null,
+        banner: bannerUrl || null,
+      });
       const created = res.data.data;
       onChange(created.id);
       refetch();

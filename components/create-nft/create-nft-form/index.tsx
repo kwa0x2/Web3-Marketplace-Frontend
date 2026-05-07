@@ -3,7 +3,7 @@
 import { useState, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useAccount, useChainId } from 'wagmi';
+import { useAccount } from 'wagmi';
 
 import { FileUpload } from '../file-upload';
 import { CollectionSelector } from '../collection-selector';
@@ -11,21 +11,16 @@ import { NFTPreviewCard } from '../nft-preview-card';
 import { nftFormSchema, type NFTFormInput, type NFTFormData } from '@/lib/validations/nft-form';
 import { useNFTMint } from '@/hooks/useNFTMint';
 
-import { chains, currencies } from './constants';
-import { NetworkInfo } from './network-info';
 import { AdvancedSettings } from './advanced-settings';
 import { MintStatus } from './mint-status';
 
 export function CreateNFTForm() {
   const { address } = useAccount();
-  const chainId = useChainId();
 
   const [file, setFile] = useState<File | null>(null);
   const [filePreview, setFilePreview] = useState<string>('');
   const [showAdvanced, setShowAdvanced] = useState(false);
   const { mint, step: mintStep, error: mintError, result: mintResult, reset: resetMint } = useNFTMint();
-
-  const currentChain = chains.find(c => c.id === chainId);
 
   const {
     register,
@@ -112,10 +107,8 @@ export function CreateNFTForm() {
       <div className="space-y-6">
         <div>
           <h1 className="text-3xl font-bold text-white mb-2">Create New NFT</h1>
-          <p className="text-gray-400">Single edition on {currentChain?.name || 'Ethereum'}</p>
+          <p className="text-gray-400">Single edition on Ethereum</p>
         </div>
-
-        <NetworkInfo chainName={currentChain?.name} chainIcon={currentChain?.icon} />
 
         <div>
           <label className="block text-white font-semibold mb-3">Upload file *</label>
@@ -186,22 +179,15 @@ export function CreateNFTForm() {
 
         <div>
           <label className="block text-white font-semibold mb-3">Price *</label>
-          <div className="flex items-center space-x-2">
+          <div className="relative">
             <input
               {...register('price')}
               type="number"
               placeholder="Enter price"
               step="0.001"
-              className="flex-1 px-4 py-3 rounded-xl bg-gray-900/60 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 focus:bg-gray-900/80 transition-all"
+              className="w-full px-4 py-3 pr-16 rounded-xl bg-gray-900/60 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 focus:bg-gray-900/80 transition-all"
             />
-            <select
-              {...register('currency')}
-              className="px-4 py-3 rounded-xl bg-gray-900/60 border border-gray-600 text-white focus:outline-none focus:border-purple-500 focus:bg-gray-900/80 transition-all"
-            >
-              {currencies.map(cur => (
-                <option key={cur} value={cur}>{cur}</option>
-              ))}
-            </select>
+            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 font-medium text-sm">ETH</span>
           </div>
           {errors.price && (
             <p className="mt-2 text-sm text-red-400">{errors.price.message}</p>
