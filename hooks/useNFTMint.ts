@@ -82,6 +82,16 @@ export function useNFTMint() {
       });
 
       setStep('confirming');
+
+      // save pending mint to localStorage so it can be recovered if the page closes
+      const pendingKey = `pending_mint_${txHash}`;
+      localStorage.setItem(pendingKey, JSON.stringify({
+        txHash, tokenId, fileUri, metadataUri,
+        name: params.name, description: params.description,
+        royalties: params.royalties, chainId, contractAddress,
+        collectionId: params.collectionId, price: params.price, currency: params.currency,
+      }));
+
       await publicClient!.waitForTransactionReceipt({ hash: txHash });
 
       if (params.price && parseFloat(params.price) > 0) {
@@ -129,6 +139,8 @@ export function useNFTMint() {
         txHash,
         tokenId,
       });
+
+      localStorage.removeItem(pendingKey);
 
       const mintResult: MintResult = {
         tokenId,
