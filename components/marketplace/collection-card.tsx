@@ -17,9 +17,9 @@ export function CollectionCard({ collection }: { collection: CollectionData }) {
       <div className="group bg-[#18181b] rounded-2xl ring-1 ring-white/[0.06] hover:ring-purple-500/40 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-purple-500/10 cursor-pointer overflow-hidden">
         {/* Banner */}
         <div className="relative h-24 bg-gradient-to-br from-purple-900/60 via-blue-900/40 to-[#111]">
-          {collection.image && !bannerError && (
+          {collection.banner && !bannerError && (
             <Image
-              src={collection.image}
+              src={collection.banner}
               alt={collection.name}
               fill
               className="object-cover opacity-50 group-hover:opacity-70 transition-opacity duration-300"

@@ -1,83 +1,61 @@
-import { marketplaceLinks, myAccountLinks, resourcesLinks, socialLinks, footerBottomLinks } from "./consts";
+import Link from 'next/link';
+import { marketplaceLinks, accountLinks } from './consts';
 
 export default function Footer() {
   return (
     <footer className="border-t border-white/10 mt-20 bg-black/20">
       <div className="max-w-[1800px] mx-auto px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 mb-8">
-          <div className="lg:col-span-2">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+          {/* Brand */}
+          <div>
             <div className="flex items-center space-x-2 mb-4">
-              <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg"></div>
-              <span className="text-white font-bold text-2xl">Web3 Market</span>
+              <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-blue-500 rounded-lg" />
+              <span className="text-white font-bold text-xl">Web3 Market</span>
             </div>
-            <p className="text-gray-400 mb-6 max-w-sm">
-              The premier NFT marketplace for discovering, collecting, and trading extraordinary digital collectibles. Built on blockchain technology for secure transactions.
+            <p className="text-gray-500 text-sm max-w-xs">
+              Discover, collect and trade unique digital assets on the blockchain.
             </p>
-            <div className="flex space-x-4">
-              {socialLinks.map((social, index) => (
-                <a
-                  key={index}
-                  href={social.href}
-                  className="w-10 h-10 bg-white/10 hover:bg-purple-600 rounded-lg flex items-center justify-center transition text-xl"
-                  aria-label={social.label}
-                >
-                  {social.icon}
-                </a>
-              ))}
-            </div>
           </div>
 
+          {/* Marketplace */}
           <div>
-            <h4 className="text-white font-semibold mb-4 text-lg">Marketplace</h4>
-            <ul className="space-y-3">
-              {marketplaceLinks.map((link, index) => (
-                <li key={index}>
-                  <a href={link.href} className="text-gray-400 hover:text-purple-400 transition flex items-center gap-2">
-                    <span className="text-sm">→</span> {link.label}
-                  </a>
+            <h4 className="text-white font-semibold mb-4">Marketplace</h4>
+            <ul className="space-y-2.5">
+              {marketplaceLinks.map((link) => (
+                <li key={link.label}>
+                  <Link href={link.href} className="text-gray-500 hover:text-purple-400 transition text-sm">
+                    {link.label}
+                  </Link>
                 </li>
               ))}
             </ul>
           </div>
 
+          {/* Account */}
           <div>
-            <h4 className="text-white font-semibold mb-4 text-lg">My Account</h4>
-            <ul className="space-y-3">
-              {myAccountLinks.map((link, index) => (
-                <li key={index}>
-                  <a href={link.href} className="text-gray-400 hover:text-purple-400 transition flex items-center gap-2">
-                    <span className="text-sm">→</span> {link.label}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="text-white font-semibold mb-4 text-lg">Resources</h4>
-            <ul className="space-y-3">
-              {resourcesLinks.map((link, index) => (
-                <li key={index}>
-                  <a href={link.href} className="text-gray-400 hover:text-purple-400 transition flex items-center gap-2">
-                    <span className="text-sm">→</span> {link.label}
-                  </a>
+            <h4 className="text-white font-semibold mb-4">My Account</h4>
+            <ul className="space-y-2.5">
+              {accountLinks.map((link) => (
+                <li key={link.label}>
+                  <Link href={link.href} className="text-gray-500 hover:text-purple-400 transition text-sm">
+                    {link.label}
+                  </Link>
                 </li>
               ))}
             </ul>
           </div>
         </div>
 
-        <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-          <div className="text-gray-400 text-sm">
-            © 2024 Web3 Market. All rights reserved. Built with ❤️ on Blockchain.
-          </div>
-          <div className="flex flex-wrap gap-6 text-sm">
-            {footerBottomLinks.map((link, index) => (
-              <a key={index} href={link.href} className="text-gray-400 hover:text-purple-400 transition">
-                {link.label}
-              </a>
-            ))}
-          </div>
+        <div className="border-t border-white/10 pt-6 flex flex-col md:flex-row items-center justify-between gap-3">
+          <p className="text-gray-600 text-sm">
+            © {new Date().getFullYear()} Web3 Market. All rights reserved.
+          </p>
+          <a
+            href="mailto:alperenibo12@gmail.com"
+            className="text-gray-500 hover:text-purple-400 transition text-sm"
+          >
+            Contact Us
+          </a>
         </div>
       </div>
     </footer>

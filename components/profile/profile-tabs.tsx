@@ -1,18 +1,20 @@
-import { ShoppingBag, Tag } from 'lucide-react';
+import { ShoppingBag, Tag, LayoutGrid } from 'lucide-react';
 
-export type ProfileTab = 'owned' | 'listed';
+export type ProfileTab = 'owned' | 'listed' | 'collections';
 
 interface ProfileTabsProps {
   activeTab: ProfileTab;
   ownedCount: number;
   listedCount: number;
+  collectionsCount: number;
   onChange: (tab: ProfileTab) => void;
 }
 
-export function ProfileTabs({ activeTab, ownedCount, listedCount, onChange }: ProfileTabsProps) {
+export function ProfileTabs({ activeTab, ownedCount, listedCount, collectionsCount, onChange }: ProfileTabsProps) {
   const tabs = [
     { key: 'owned' as ProfileTab, label: 'Owned', icon: ShoppingBag, count: ownedCount },
     { key: 'listed' as ProfileTab, label: 'Listed', icon: Tag, count: listedCount },
+    { key: 'collections' as ProfileTab, label: 'Collections', icon: LayoutGrid, count: collectionsCount },
   ];
 
   return (

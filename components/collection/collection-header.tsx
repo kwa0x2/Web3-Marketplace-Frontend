@@ -1,9 +1,15 @@
 import Image from 'next/image';
-import { BadgeCheck, ImageIcon } from 'lucide-react';
+import { BadgeCheck, ImageIcon, Pencil } from 'lucide-react';
 import { CollectionDetail } from '@/hooks/useCollections';
 import { CopyAddress } from './copy-address';
 
-export function CollectionHeader({ collection }: { collection: CollectionDetail }) {
+interface CollectionHeaderProps {
+  collection: CollectionDetail;
+  isOwner?: boolean;
+  onEditClick?: () => void;
+}
+
+export function CollectionHeader({ collection, isOwner, onEditClick }: CollectionHeaderProps) {
   return (
     <>
       <div className="relative h-44 rounded-2xl overflow-hidden mb-0 bg-gradient-to-br from-purple-600/30 via-indigo-600/20 to-blue-600/30">
@@ -11,6 +17,16 @@ export function CollectionHeader({ collection }: { collection: CollectionDetail 
           <Image src={collection.banner} alt="Banner" fill className="object-cover" />
         ) : (
           <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wMyI+PHBhdGggZD0iTTM2IDM0djItSDJ2LTJoMzR6TTAgMGg0djRIMFYwem0wIDZ2LTJoMnYySDAgem0wIDZ2LTJoMnYySDB6Ii8+PC9nPjwvZz48L3N2Zz4=')] opacity-50" />
+        )}
+
+        {isOwner && (
+          <button
+            onClick={onEditClick}
+            className="absolute bottom-3 right-3 z-10 flex items-center gap-1.5 px-3 py-1.5 bg-black/60 hover:bg-black/80 border border-white/20 rounded-lg text-xs text-white/80 hover:text-white transition-all backdrop-blur-sm"
+          >
+            <Pencil className="w-3.5 h-3.5" />
+            Edit Collection
+          </button>
         )}
       </div>
 

@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "@/app/globals.css";
 import { Web3Provider } from "@/context/web3.provider";
 import { AuthProvider } from "@/context/auth.context";
+import { ErrorBoundary } from "@/components/error-boundary";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -19,11 +20,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <Web3Provider>
-          <AuthProvider>
-            {children}
-          </AuthProvider>
-        </Web3Provider>
+        <ErrorBoundary>
+          <Web3Provider>
+            <AuthProvider>
+              {children}
+            </AuthProvider>
+          </Web3Provider>
+        </ErrorBoundary>
       </body>
     </html>
   );

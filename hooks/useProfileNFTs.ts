@@ -1,10 +1,8 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
+import apiClient from '@/api/axios';
 import { NFTCardData } from '@/components/nft/nft-card';
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
 
 interface Pagination {
   page: number;
@@ -24,11 +22,14 @@ export function useProfileNFTs() {
     setError(null);
 
     try {
-      const res = await axios.get(`${API_URL}/nft/mine`, { withCredentials: true });
+      const res = await apiClient.get('/nft/mine');
       setNfts(res.data.data || []);
       setPagination(res.data.pagination || { page: 1, limit: 20, total: 0, totalPages: 0 });
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to fetch NFTs');
+      const raw = err.response?.data?.error || 'Failed to fetch NFTs';
+      setError(raw === 'No session found' || raw === 'Invalid or expired session'
+        ? 'Session not found. Please verify your wallet or logout and login again.'
+        : raw);
     } finally {
       setIsLoading(false);
     }

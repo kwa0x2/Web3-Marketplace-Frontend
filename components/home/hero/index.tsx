@@ -24,9 +24,11 @@ export default function Hero() {
               Explore Marketplace
             </Button>
           </Link>
-          <Button size="lg" variant="outline" className="text-lg">
-            Create NFT
-          </Button>
+          <Link href="/create">
+            <Button size="lg" variant="outline" className="text-lg">
+              Create NFT
+            </Button>
+          </Link>
         </div>
       </div>
     </section>

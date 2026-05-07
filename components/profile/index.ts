@@ -5,3 +5,5 @@ export { ProfileStats } from './profile-stats';
 export { ProfileTabs } from './profile-tabs';
 export type { ProfileTab } from './profile-tabs';
 export { ProfileNFTGrid } from './profile-nft-grid';
+export { ProfileCollectionGrid } from './profile-collection-grid';
+export { EditProfileModal } from './edit-profile-modal';

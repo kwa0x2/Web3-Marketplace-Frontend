@@ -2,9 +2,7 @@ import { useState } from 'react';
 import { useWriteContract, useChainId, usePublicClient, useAccount } from 'wagmi';
 import { parseEther } from 'viem';
 import { WEB3_MARKETPLACE_NFT_ABI, getNFTContractAddress } from '@/lib/contracts/Web3MarketplaceNFT';
-import axios from 'axios';
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
+import apiClient from '@/api/axios';
 
 export type MintStep = 'idle' | 'uploading' | 'minting' | 'confirming' | 'approving' | 'listing' | 'saving' | 'done' | 'error';
 
@@ -60,8 +58,7 @@ export function useNFTMint() {
         formData.append('properties', JSON.stringify(params.properties));
       }
 
-      const uploadRes = await axios.post(`${API_URL}/nft/upload`, formData, {
-        withCredentials: true,
+      const uploadRes = await apiClient.post('/nft/upload', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
 
@@ -117,7 +114,7 @@ export function useNFTMint() {
       }
 
       setStep('saving');
-      await axios.post(`${API_URL}/nft`, {
+      await apiClient.post('/nft', {
         name: params.name,
         description: params.description || '',
         category: params.category || '',
@@ -131,7 +128,7 @@ export function useNFTMint() {
         currency: params.currency || null,
         txHash,
         tokenId,
-      }, { withCredentials: true });
+      });
 
       const mintResult: MintResult = {
         tokenId,

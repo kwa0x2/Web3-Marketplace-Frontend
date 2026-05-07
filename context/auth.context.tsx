@@ -17,6 +17,8 @@ interface AuthContextType {
   authenticate: () => Promise<boolean>;
   logout: () => Promise<void>;
   clearError: () => void;
+  updateProfile: (formData: FormData) => Promise<void>;
+  updateUser: (user: User) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -123,6 +125,17 @@ export function AuthProvider({ children }: AuthProviderProps) {
     setError(null);
   };
 
+  const updateUser = (updatedUser: User) => {
+    setUser(updatedUser);
+  };
+
+  const updateProfile = async (formData: FormData): Promise<void> => {
+    const response = await authService.updateProfile(formData);
+    if (response.success && response.data?.user) {
+      setUser(response.data.user);
+    }
+  };
+
   const value: AuthContextType = {
     user,
     isAuthenticated,
@@ -133,6 +146,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
     authenticate,
     logout,
     clearError,
+    updateProfile,
+    updateUser,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

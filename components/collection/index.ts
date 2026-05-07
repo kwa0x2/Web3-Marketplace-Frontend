@@ -4,3 +4,4 @@ export { CollectionAbout } from './collection-about';
 export { CollectionSkeleton } from './collection-skeleton';
 export { StatCard } from './stat-card';
 export { CopyAddress } from './copy-address';
+export { EditCollectionModal } from './edit-collection-modal';
