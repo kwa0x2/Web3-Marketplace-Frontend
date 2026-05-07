@@ -197,6 +197,7 @@ export const WEB3_MARKETPLACE_NFT_ABI = [
 
 // Update these after deploying to each network
 export const NFT_CONTRACT_ADDRESSES: Record<number, `0x${string}`> = {
+  1:        '0x45aA14387e9694CD8175D20fD8B69AB6533C83D6',
   11155111: '0x8273737C2bd56b16a97D99F66Ed1Be155f7dd5FE',
 };
 
