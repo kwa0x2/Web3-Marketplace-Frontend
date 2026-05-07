@@ -37,7 +37,7 @@ export function useNFTBuy() {
         value: priceInWei,
       });
 
-      await publicClient!.waitForTransactionReceipt({ hash: tx });
+      await publicClient!.waitForTransactionReceipt({ hash: tx, pollingInterval: 5_000, retryCount: 300 });
 
       try {
         await apiClient.patch(`/nft/token/${tokenId}/sold`, {
@@ -90,7 +90,7 @@ export function useNFTList() {
         functionName: 'approve',
         args: [contractAddress, BigInt(tokenId)],
       });
-      await publicClient!.waitForTransactionReceipt({ hash: approveTx });
+      await publicClient!.waitForTransactionReceipt({ hash: approveTx, pollingInterval: 5_000, retryCount: 300 });
 
       setStep('listing');
 
@@ -100,7 +100,7 @@ export function useNFTList() {
         functionName: 'listItem',
         args: [BigInt(tokenId), parseEther(priceInEth)],
       });
-      await publicClient!.waitForTransactionReceipt({ hash: listTx });
+      await publicClient!.waitForTransactionReceipt({ hash: listTx, pollingInterval: 5_000, retryCount: 300 });
 
       setStep('done');
       return true;
@@ -130,7 +130,7 @@ export function useNFTList() {
         functionName: 'cancelListing',
         args: [BigInt(tokenId)],
       });
-      await publicClient!.waitForTransactionReceipt({ hash: tx });
+      await publicClient!.waitForTransactionReceipt({ hash: tx, pollingInterval: 5_000, retryCount: 300 });
 
       return true;
     } catch (err: any) {
@@ -161,7 +161,7 @@ export function useNFTList() {
           functionName: 'cancelListing',
           args: [BigInt(tokenId)],
         });
-        await publicClient!.waitForTransactionReceipt({ hash: cancelTx });
+        await publicClient!.waitForTransactionReceipt({ hash: cancelTx, pollingInterval: 5_000, retryCount: 300 });
       } catch {
         // not listed on-chain or already cancelled — continue to approve + list
       }
@@ -173,7 +173,7 @@ export function useNFTList() {
         functionName: 'approve',
         args: [contractAddress, BigInt(tokenId)],
       });
-      await publicClient!.waitForTransactionReceipt({ hash: approveTx });
+      await publicClient!.waitForTransactionReceipt({ hash: approveTx, pollingInterval: 5_000, retryCount: 300 });
 
       setStep('listing');
       const listTx = await writeContractAsync({
@@ -182,7 +182,7 @@ export function useNFTList() {
         functionName: 'listItem',
         args: [BigInt(tokenId), parseEther(newPriceInEth)],
       });
-      await publicClient!.waitForTransactionReceipt({ hash: listTx });
+      await publicClient!.waitForTransactionReceipt({ hash: listTx, pollingInterval: 5_000, retryCount: 300 });
 
       setStep('done');
       return true;
