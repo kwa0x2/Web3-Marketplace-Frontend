@@ -94,7 +94,7 @@ export function useNFTList() {
   const list = async (tokenId: number, priceInEth: string) => {
     const contractAddress = getNFTContractAddress(chainId);
     if (!contractAddress) {
-      setError('Contract not deployed on this network');
+      setError('Contract not deployed on this network.');
       setStep('error');
       return false;
     }
