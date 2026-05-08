@@ -37,7 +37,13 @@ export function useNFTBuy() {
         value: priceInWei,
       });
 
-      await publicClient!.waitForTransactionReceipt({ hash: tx, pollingInterval: 5_000, retryCount: 300 });
+      const receipt = await publicClient!.waitForTransactionReceipt({ hash: tx, pollingInterval: 2_000 });
+
+      if (receipt.status === 'reverted') {
+        setError('Transaction reverted. The listing may have changed — please refresh and try again.');
+        setStep('error');
+        return false;
+      }
 
       try {
         await apiClient.patch(`/nft/token/${tokenId}/sold`, {
@@ -90,7 +96,7 @@ export function useNFTList() {
         functionName: 'approve',
         args: [contractAddress, BigInt(tokenId)],
       });
-      await publicClient!.waitForTransactionReceipt({ hash: approveTx, pollingInterval: 5_000, retryCount: 300 });
+      await publicClient!.waitForTransactionReceipt({ hash: approveTx, pollingInterval: 2_000 });
 
       setStep('listing');
 
@@ -100,7 +106,7 @@ export function useNFTList() {
         functionName: 'listItem',
         args: [BigInt(tokenId), parseEther(priceInEth)],
       });
-      await publicClient!.waitForTransactionReceipt({ hash: listTx, pollingInterval: 5_000, retryCount: 300 });
+      await publicClient!.waitForTransactionReceipt({ hash: listTx, pollingInterval: 2_000 });
 
       setStep('done');
       return true;
@@ -130,7 +136,7 @@ export function useNFTList() {
         functionName: 'cancelListing',
         args: [BigInt(tokenId)],
       });
-      await publicClient!.waitForTransactionReceipt({ hash: tx, pollingInterval: 5_000, retryCount: 300 });
+      await publicClient!.waitForTransactionReceipt({ hash: tx, pollingInterval: 2_000 });
 
       return true;
     } catch (err: any) {
@@ -159,7 +165,7 @@ export function useNFTList() {
         functionName: 'listItem',
         args: [BigInt(tokenId), parseEther(newPriceInEth)],
       });
-      await publicClient!.waitForTransactionReceipt({ hash: listTx, pollingInterval: 5_000, retryCount: 300 });
+      await publicClient!.waitForTransactionReceipt({ hash: listTx, pollingInterval: 2_000 });
 
       setStep('done');
       return true;
