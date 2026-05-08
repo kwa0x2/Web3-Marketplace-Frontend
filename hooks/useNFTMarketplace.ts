@@ -87,6 +87,7 @@ export function useNFTBuy() {
 export function useNFTList() {
   const chainId = useChainId();
   const publicClient = usePublicClient();
+  const { address } = useAccount();
   const [step, setStep] = useState<ListStep>('idle');
   const [error, setError] = useState<string | null>(null);
   const { writeContractAsync } = useWriteContract();
@@ -172,18 +173,36 @@ export function useNFTList() {
     setError(null);
 
     try {
+      await publicClient!.simulateContract({
+        address: contractAddress,
+        abi: WEB3_MARKETPLACE_NFT_ABI,
+        functionName: 'listItem',
+        args: [BigInt(tokenId), parseEther(newPriceInEth)],
+        account: address,
+      });
+
       const listTx = await writeContractAsync({
         address: contractAddress,
         abi: WEB3_MARKETPLACE_NFT_ABI,
         functionName: 'listItem',
         args: [BigInt(tokenId), parseEther(newPriceInEth)],
       });
-      await publicClient!.waitForTransactionReceipt({ hash: listTx, pollingInterval: 2_000, timeout: 0 });
+
+      const receipt = await publicClient!.waitForTransactionReceipt({ hash: listTx, pollingInterval: 2_000, timeout: 0 });
+
+      if (receipt.status === 'reverted') {
+        setError('Transaction reverted. Make sure you still own this NFT and it is approved.');
+        setStep('error');
+        return false;
+      }
 
       setStep('done');
       return true;
     } catch (err: any) {
-      const message = err?.shortMessage || err?.message || 'Failed to update listing';
+      const revertReason = err?.cause?.reason || err?.cause?.shortMessage;
+      const message = revertReason
+        ? `Transaction failed: ${revertReason}`
+        : err?.shortMessage || err?.message || 'Failed to update listing';
       setError(message);
       setStep('error');
       return false;
