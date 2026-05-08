@@ -92,7 +92,7 @@ export function useNFTMint() {
         collectionId: params.collectionId, price: params.price, currency: params.currency,
       }));
 
-      await publicClient!.waitForTransactionReceipt({ hash: txHash });
+      await publicClient!.waitForTransactionReceipt({ hash: txHash, pollingInterval: 2_000, timeout: 0 });
 
       if (params.price && parseFloat(params.price) > 0) {
         const isApproved = await publicClient!.readContract({
@@ -110,7 +110,7 @@ export function useNFTMint() {
             functionName: 'setApprovalForAll',
             args: [contractAddress, true],
           });
-          await publicClient!.waitForTransactionReceipt({ hash: approveTx });
+          await publicClient!.waitForTransactionReceipt({ hash: approveTx, pollingInterval: 2_000, timeout: 0 });
         }
 
         setStep('listing');

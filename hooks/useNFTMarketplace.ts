@@ -47,7 +47,7 @@ export function useNFTBuy() {
         value: priceInWei,
       });
 
-      const receipt = await publicClient!.waitForTransactionReceipt({ hash: tx, pollingInterval: 2_000 });
+      const receipt = await publicClient!.waitForTransactionReceipt({ hash: tx, pollingInterval: 2_000, timeout: 0 });
 
       if (receipt.status === 'reverted') {
         setError('Transaction reverted. The listing may have changed — please refresh and try again.');
@@ -109,7 +109,7 @@ export function useNFTList() {
         functionName: 'approve',
         args: [contractAddress, BigInt(tokenId)],
       });
-      await publicClient!.waitForTransactionReceipt({ hash: approveTx, pollingInterval: 2_000 });
+      await publicClient!.waitForTransactionReceipt({ hash: approveTx, pollingInterval: 2_000, timeout: 0 });
 
       setStep('listing');
 
@@ -119,7 +119,7 @@ export function useNFTList() {
         functionName: 'listItem',
         args: [BigInt(tokenId), parseEther(priceInEth)],
       });
-      await publicClient!.waitForTransactionReceipt({ hash: listTx, pollingInterval: 2_000 });
+      await publicClient!.waitForTransactionReceipt({ hash: listTx, pollingInterval: 2_000, timeout: 0 });
 
       setStep('done');
       return true;
@@ -149,7 +149,7 @@ export function useNFTList() {
         functionName: 'cancelListing',
         args: [BigInt(tokenId)],
       });
-      await publicClient!.waitForTransactionReceipt({ hash: tx, pollingInterval: 2_000 });
+      await publicClient!.waitForTransactionReceipt({ hash: tx, pollingInterval: 2_000, timeout: 0 });
 
       return true;
     } catch (err: any) {
@@ -178,7 +178,7 @@ export function useNFTList() {
         functionName: 'listItem',
         args: [BigInt(tokenId), parseEther(newPriceInEth)],
       });
-      await publicClient!.waitForTransactionReceipt({ hash: listTx, pollingInterval: 2_000 });
+      await publicClient!.waitForTransactionReceipt({ hash: listTx, pollingInterval: 2_000, timeout: 0 });
 
       setStep('done');
       return true;
