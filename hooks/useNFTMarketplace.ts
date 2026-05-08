@@ -29,6 +29,16 @@ export function useNFTBuy() {
     setError(null);
 
     try {
+      // Simulate first to surface revert reasons before MetaMask prompt
+      await publicClient!.simulateContract({
+        address: contractAddress,
+        abi: WEB3_MARKETPLACE_NFT_ABI,
+        functionName: 'buyItem',
+        args: [BigInt(tokenId)],
+        value: priceInWei,
+        account: address,
+      });
+
       const tx = await writeContractAsync({
         address: contractAddress,
         abi: WEB3_MARKETPLACE_NFT_ABI,
@@ -56,7 +66,10 @@ export function useNFTBuy() {
       setStep('done');
       return true;
     } catch (err: any) {
-      const message = err?.shortMessage || err?.message || 'Failed to buy NFT';
+      const revertReason = err?.cause?.reason || err?.cause?.shortMessage;
+      const message = revertReason
+        ? `Transaction failed: ${revertReason}`
+        : err?.shortMessage || err?.message || 'Failed to buy NFT';
       setError(message);
       setStep('error');
       return false;
