@@ -149,33 +149,10 @@ export function useNFTList() {
       return false;
     }
 
-    setStep('cancelling');
+    setStep('listing');
     setError(null);
 
     try {
-      // best-effort cancel — if the NFT isn't listed on-chain we can still re-list
-      try {
-        const cancelTx = await writeContractAsync({
-          address: contractAddress,
-          abi: WEB3_MARKETPLACE_NFT_ABI,
-          functionName: 'cancelListing',
-          args: [BigInt(tokenId)],
-        });
-        await publicClient!.waitForTransactionReceipt({ hash: cancelTx, pollingInterval: 5_000, retryCount: 300 });
-      } catch {
-        // not listed on-chain or already cancelled — continue to approve + list
-      }
-
-      setStep('approving');
-      const approveTx = await writeContractAsync({
-        address: contractAddress,
-        abi: WEB3_MARKETPLACE_NFT_ABI,
-        functionName: 'approve',
-        args: [contractAddress, BigInt(tokenId)],
-      });
-      await publicClient!.waitForTransactionReceipt({ hash: approveTx, pollingInterval: 5_000, retryCount: 300 });
-
-      setStep('listing');
       const listTx = await writeContractAsync({
         address: contractAddress,
         abi: WEB3_MARKETPLACE_NFT_ABI,
