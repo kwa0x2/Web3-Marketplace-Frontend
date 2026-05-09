@@ -3,7 +3,7 @@
 import { useState, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useAccount } from 'wagmi';
+import { useAccount, useChainId } from 'wagmi';
 
 import { FileUpload } from '../file-upload';
 import { CollectionSelector } from '../collection-selector';
@@ -16,6 +16,7 @@ import { MintStatus } from './mint-status';
 
 export function CreateNFTForm() {
   const { address } = useAccount();
+  const chainId = useChainId();
 
   const [file, setFile] = useState<File | null>(null);
   const [filePreview, setFilePreview] = useState<string>('');
@@ -184,7 +185,8 @@ export function CreateNFTForm() {
               {...register('price')}
               type="number"
               placeholder="Enter price"
-              step="0.001"
+              step="0.0001"
+              min="0.0001"
               className="w-full px-4 py-3 pr-16 rounded-xl bg-gray-900/60 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 focus:bg-gray-900/80 transition-all"
             />
             <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 font-medium text-sm">ETH</span>
@@ -209,6 +211,7 @@ export function CreateNFTForm() {
           txHash={mintResult?.txHash}
           isUploading={isUploading}
           hasFile={!!file}
+          chainId={chainId}
         />
       </div>
 

@@ -19,9 +19,11 @@ interface MintStatusProps {
   txHash?: string;
   isUploading: boolean;
   hasFile: boolean;
+  chainId?: number;
 }
 
-export function MintStatus({ mintStep, mintError, txHash, isUploading, hasFile }: MintStatusProps) {
+export function MintStatus({ mintStep, mintError, txHash, isUploading, hasFile, chainId }: MintStatusProps) {
+  const explorerBase = chainId === 11155111 ? 'https://sepolia.etherscan.io' : 'https://etherscan.io';
   return (
     <>
       {mintError && (
@@ -37,7 +39,7 @@ export function MintStatus({ mintStep, mintError, txHash, isUploading, hasFile }
             <p className="text-green-400 font-semibold">NFT Created Successfully!</p>
           </div>
           <a
-            href={`https://sepolia.etherscan.io/tx/${txHash}`}
+            href={`${explorerBase}/tx/${txHash}`}
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center space-x-1 text-purple-400 hover:text-purple-300 text-sm"

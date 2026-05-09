@@ -19,8 +19,8 @@ export const nftFormSchema = z.object({
     .min(1, 'Price is required')
     .refine((val) => {
       const num = parseFloat(val);
-      return !isNaN(num) && num > 0;
-    }, 'Price must be a positive number'),
+      return !isNaN(num) && num >= 0.0001;
+    }, 'Minimum price is 0.0001 ETH'),
   currency: z.string().default('ETH'),
   properties: z.array(
     z.object({
