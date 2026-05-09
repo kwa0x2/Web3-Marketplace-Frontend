@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useWriteContract, useChainId, usePublicClient, useAccount } from 'wagmi';
-import { parseEther } from 'viem';
+import { parseEther, parseEventLogs } from 'viem';
 import { WEB3_MARKETPLACE_NFT_ABI, getNFTContractAddress } from '@/lib/contracts/Web3MarketplaceNFT';
 import apiClient from '@/api/axios';
 
@@ -67,13 +67,6 @@ export function useNFTMint() {
       setStep('minting');
       const royaltyBps = BigInt(Math.round(params.royalties * 100));
 
-      const totalSupply = await publicClient!.readContract({
-        address: contractAddress,
-        abi: WEB3_MARKETPLACE_NFT_ABI,
-        functionName: 'totalSupply',
-      });
-      const tokenId = Number(totalSupply);
-
       const txHash = await writeContractAsync({
         address: contractAddress,
         abi: WEB3_MARKETPLACE_NFT_ABI,
@@ -83,16 +76,27 @@ export function useNFTMint() {
 
       setStep('confirming');
 
-      // save pending mint to localStorage so it can be recovered if the page closes
       const pendingKey = `pending_mint_${txHash}`;
       localStorage.setItem(pendingKey, JSON.stringify({
-        txHash, tokenId, fileUri, metadataUri,
+        txHash, fileUri, metadataUri,
         name: params.name, description: params.description,
         royalties: params.royalties, chainId, contractAddress,
         collectionId: params.collectionId, price: params.price, currency: params.currency,
       }));
 
-      await publicClient!.waitForTransactionReceipt({ hash: txHash, pollingInterval: 2_000, timeout: 0 });
+      const mintReceipt = await publicClient!.waitForTransactionReceipt({ hash: txHash, pollingInterval: 2_000, timeout: 0 });
+
+      // Read actual tokenId from the NFTMinted event — avoids race conditions from pre-computing totalSupply
+      const mintedLogs = parseEventLogs({
+        abi: WEB3_MARKETPLACE_NFT_ABI,
+        eventName: 'NFTMinted',
+        logs: mintReceipt.logs,
+      });
+      const tokenId = mintedLogs[0]?.args?.tokenId != null
+        ? Number(mintedLogs[0].args.tokenId)
+        : null;
+
+      if (tokenId == null) throw new Error('Could not determine minted token ID from receipt');
 
       if (params.price && parseFloat(params.price) > 0) {
         const isApproved = await publicClient!.readContract({
@@ -115,6 +119,15 @@ export function useNFTMint() {
 
         setStep('listing');
         const priceInWei = parseEther(params.price);
+
+        await publicClient!.simulateContract({
+          address: contractAddress,
+          abi: WEB3_MARKETPLACE_NFT_ABI,
+          functionName: 'listItem',
+          args: [BigInt(tokenId), priceInWei],
+          account: walletAddress,
+        });
+
         const listTx = await writeContractAsync({
           address: contractAddress,
           abi: WEB3_MARKETPLACE_NFT_ABI,
