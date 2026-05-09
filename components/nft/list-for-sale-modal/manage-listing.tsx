@@ -44,7 +44,7 @@ export function ManageListing({
           </div>
           <input
             type="number"
-            step="0.0001"
+            step="any"
             min="0.0001"
             placeholder={currentPrice?.toString() ?? '0.00'}
             value={price}

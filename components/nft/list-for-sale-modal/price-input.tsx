@@ -18,7 +18,7 @@ export function PriceInput({ price, onChange, disabled }: PriceInputProps) {
         </div>
         <input
           type="number"
-          step="0.0001"
+          step="any"
           min="0.0001"
           placeholder="0.00"
           value={price}

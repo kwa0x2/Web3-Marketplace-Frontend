@@ -185,8 +185,7 @@ export function CreateNFTForm() {
               {...register('price')}
               type="number"
               placeholder="Enter price"
-              step="0.0001"
-              min="0.0001"
+              step="any"
               className="w-full px-4 py-3 pr-16 rounded-xl bg-gray-900/60 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 focus:bg-gray-900/80 transition-all"
             />
             <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 font-medium text-sm">ETH</span>

@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import { X, ExternalLink, Copy, Check, Loader2, ShoppingCart, FileText, User, Tag, Link2 } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAccount, useReadContract, useChainId } from 'wagmi';
 import { parseEther } from 'viem';
 import { NFTCardData } from './nft-card';
@@ -19,6 +19,20 @@ interface NFTDetailModalProps {
 export function NFTDetailModal({ nft, onClose, onPurchase }: NFTDetailModalProps) {
   const [copiedField, setCopiedField] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'details' | 'about'>('details');
+  const [attributes, setAttributes] = useState<Array<{ trait_type: string; value: string }>>([]);
+
+  useEffect(() => {
+    if (!nft.metadataGatewayUrl) return;
+    fetch(nft.metadataGatewayUrl)
+      .then((r) => r.json())
+      .then((data) => {
+        if (Array.isArray(data.attributes) && data.attributes.length > 0) {
+          setAttributes(data.attributes);
+          setActiveTab('about');
+        }
+      })
+      .catch(() => {});
+  }, [nft.metadataGatewayUrl]);
   const { address } = useAccount();
   const chainId = useChainId();
   const contractAddress = getNFTContractAddress(chainId);
@@ -315,11 +329,30 @@ export function NFTDetailModal({ nft, onClose, onPurchase }: NFTDetailModalProps
               )}
 
               {activeTab === 'about' && (
-                <div className="bg-white/[0.03] rounded-xl ring-1 ring-white/[0.06] p-4">
-                  {nft.description ? (
-                    <p className="text-gray-400 text-sm leading-relaxed">{nft.description}</p>
-                  ) : (
-                    <p className="text-gray-600 text-sm">No description provided.</p>
+                <div className="space-y-3">
+                  <div className="bg-white/[0.03] rounded-xl ring-1 ring-white/[0.06] p-4">
+                    {nft.description ? (
+                      <p className="text-gray-400 text-sm leading-relaxed">{nft.description}</p>
+                    ) : (
+                      <p className="text-gray-600 text-sm">No description provided.</p>
+                    )}
+                  </div>
+
+                  {attributes.length > 0 && (
+                    <div>
+                      <p className="text-[11px] text-gray-500 uppercase tracking-wider mb-2 px-1">Properties</p>
+                      <div className="grid grid-cols-2 gap-2">
+                        {attributes.map((attr, i) => (
+                          <div
+                            key={i}
+                            className="bg-purple-500/5 ring-1 ring-purple-500/20 rounded-xl px-3 py-2.5 text-center"
+                          >
+                            <p className="text-[10px] text-purple-400 uppercase tracking-wider truncate">{attr.trait_type}</p>
+                            <p className="text-white text-xs font-semibold mt-0.5 truncate">{attr.value}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
                   )}
                 </div>
               )}

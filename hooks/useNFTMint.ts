@@ -115,12 +115,13 @@ export function useNFTMint() {
 
         setStep('listing');
         const priceInWei = parseEther(params.price);
-        await writeContractAsync({
+        const listTx = await writeContractAsync({
           address: contractAddress,
           abi: WEB3_MARKETPLACE_NFT_ABI,
           functionName: 'listItem',
           args: [BigInt(tokenId), priceInWei],
         });
+        await publicClient!.waitForTransactionReceipt({ hash: listTx, pollingInterval: 2_000, timeout: 0 });
       }
 
       setStep('saving');
