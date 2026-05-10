@@ -17,6 +17,7 @@ export function EditCollectionModal({ collection, onClose, onSave }: EditCollect
   const [error, setError] = useState<string | null>(null);
 
   const [name, setName] = useState(collection.name);
+  const [symbol, setSymbol] = useState(collection.symbol);
   const [description, setDescription] = useState(collection.description ?? '');
   const [imagePreview, setImagePreview] = useState<string | null>(collection.image ?? null);
   const [bannerPreview, setBannerPreview] = useState<string | null>(collection.banner ?? null);
@@ -45,10 +46,12 @@ export function EditCollectionModal({ collection, onClose, onSave }: EditCollect
     setError(null);
     try {
       const nameChanged = name.trim() !== collection.name;
+      const symbolChanged = symbol.trim().toUpperCase() !== collection.symbol;
       const descChanged = description !== (collection.description ?? '');
-      if (nameChanged || descChanged) {
+      if (nameChanged || symbolChanged || descChanged) {
         await apiClient.patch(`/collection/${collection.id}/description`, {
           name: name.trim(),
+          symbol: symbol.trim(),
           description: description || null,
         });
       }
@@ -133,15 +136,28 @@ export function EditCollectionModal({ collection, onClose, onSave }: EditCollect
 
         {/* Name & Description */}
         <div className="px-6 pb-2 space-y-3">
-          <div>
-            <label className="text-xs text-gray-500 uppercase tracking-wider mb-1.5 block">Collection Name</label>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              maxLength={100}
-              className="w-full px-3 py-2.5 bg-white/[0.04] ring-1 ring-white/[0.08] rounded-xl text-white text-sm placeholder-gray-600 focus:outline-none focus:ring-purple-500/50 transition-all"
-            />
+          <div className="grid grid-cols-[1fr_auto] gap-3">
+            <div>
+              <label className="text-xs text-gray-500 uppercase tracking-wider mb-1.5 block">Collection Name</label>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                maxLength={100}
+                className="w-full px-3 py-2.5 bg-white/[0.04] ring-1 ring-white/[0.08] rounded-xl text-white text-sm placeholder-gray-600 focus:outline-none focus:ring-purple-500/50 transition-all"
+              />
+            </div>
+            <div>
+              <label className="text-xs text-gray-500 uppercase tracking-wider mb-1.5 block">Symbol</label>
+              <input
+                type="text"
+                value={symbol}
+                onChange={(e) => setSymbol(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ''))}
+                maxLength={10}
+                placeholder="e.g. CP"
+                className="w-24 px-3 py-2.5 bg-white/[0.04] ring-1 ring-white/[0.08] rounded-xl text-white text-sm font-mono placeholder-gray-600 focus:outline-none focus:ring-purple-500/50 transition-all"
+              />
+            </div>
           </div>
           <div>
             <label className="text-xs text-gray-500 uppercase tracking-wider mb-1.5 block">Description</label>
@@ -175,7 +191,7 @@ export function EditCollectionModal({ collection, onClose, onSave }: EditCollect
             <Button
               className="flex-1 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500"
               onClick={handleSubmit}
-              disabled={isSaving || !name.trim()}
+              disabled={isSaving || !name.trim() || !symbol.trim()}
             >
               {isSaving ? (
                 <>
