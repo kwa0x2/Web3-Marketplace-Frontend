@@ -39,8 +39,6 @@ export default function TrendingNFTs() {
           defaultCurrency="ETH"
           theme="light"
           showCurrencyToggle={true}
-          showTimeFilters={true}
-          defaultTimeFilter="24h"
         />
       )}
     </section>
