@@ -115,7 +115,7 @@ export function NFTDetailModal({ nft, onClose, onPurchase }: NFTDetailModalProps
       <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" />
 
       <div
-        className="relative bg-[#0f0f0f] ring-1 ring-white/[0.08] rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden"
+        className="relative bg-[#0f0f0f] ring-1 ring-white/[0.08] rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto md:overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         <button
@@ -125,9 +125,9 @@ export function NFTDetailModal({ nft, onClose, onPurchase }: NFTDetailModalProps
           <X className="w-5 h-5 text-white" />
         </button>
 
-        <div className="grid grid-cols-1 md:grid-cols-[1fr_1.1fr] max-h-[90vh]">
-          <div className="relative bg-[#0a0a0a] flex items-center justify-center p-6">
-            <div className="relative w-full aspect-square rounded-xl overflow-hidden ring-1 ring-white/[0.06]">
+        <div className="grid grid-cols-1 md:grid-cols-[1fr_1.1fr] md:max-h-[90vh]">
+          <div className="relative bg-[#0a0a0a] flex items-center justify-center p-4 md:p-6">
+            <div className="relative w-full aspect-video md:aspect-square rounded-xl overflow-hidden ring-1 ring-white/[0.06]">
               <Image
                 src={nft.fileGatewayUrl}
                 alt={nft.name}
@@ -136,13 +136,13 @@ export function NFTDetailModal({ nft, onClose, onPurchase }: NFTDetailModalProps
               />
             </div>
             {nft.category && (
-              <span className="absolute top-8 left-8 px-2.5 py-1 bg-white/10 backdrop-blur-md rounded-lg text-[11px] font-medium text-white/90 tracking-wide uppercase">
+              <span className="absolute top-6 left-6 md:top-8 md:left-8 px-2.5 py-1 bg-white/10 backdrop-blur-md rounded-lg text-[11px] font-medium text-white/90 tracking-wide uppercase">
                 {nft.category}
               </span>
             )}
           </div>
 
-          <div className="flex flex-col max-h-[90vh] overflow-y-auto">
+          <div className="flex flex-col md:max-h-[90vh] md:overflow-y-auto">
             <div className="p-6 pb-0">
               <div className="flex items-start justify-between gap-4">
                 <div>
