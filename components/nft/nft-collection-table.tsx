@@ -1,271 +1,133 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { TrendingUp, TrendingDown, ArrowDown } from 'lucide-react';
 import { NFTCollection } from '@/hooks/useCollections';
 
-const TIME_FILTERS = ['1h', '6h', '24h', '7d', '30d'];
 const CURRENCY_TYPES = ['ETH', '$'] as const;
-
 const ETH_USD = 3850;
-
-const TIME_MULTIPLIERS: Record<string, { volume: number; sales: number; floorChange: number }> = {
-  '1h':  { volume: 0.04, sales: 0.04, floorChange: 0.15 },
-  '6h':  { volume: 0.25, sales: 0.25, floorChange: 0.4 },
-  '24h': { volume: 1,    sales: 1,    floorChange: 1 },
-  '7d':  { volume: 5.5,  sales: 5.5,  floorChange: 2.2 },
-  '30d': { volume: 18,   sales: 18,   floorChange: 4.5 },
-};
 
 interface NFTCollectionTableProps {
   collections: NFTCollection[];
   defaultCurrency?: 'ETH' | '$';
   theme?: 'light' | 'dark';
-  showTimeFilters?: boolean;
   showCurrencyToggle?: boolean;
-  defaultTimeFilter?: string;
 }
 
 export default function NFTCollectionTable({
   collections,
   defaultCurrency = 'ETH',
   theme = 'dark',
-  showTimeFilters = false,
   showCurrencyToggle = false,
-  defaultTimeFilter = '24h'
 }: NFTCollectionTableProps) {
   const isDark = theme === 'dark';
   const router = useRouter();
-  const [selectedTimeFilter, setSelectedTimeFilter] = useState(defaultTimeFilter);
   const [selectedCurrency, setSelectedCurrency] = useState<'ETH' | '$'>(defaultCurrency);
 
   const isUsd = selectedCurrency === '$';
   const rate = isUsd ? ETH_USD : 1;
-  const mul = TIME_MULTIPLIERS[selectedTimeFilter] ?? TIME_MULTIPLIERS['24h'];
 
   const adjusted = useMemo(() =>
     collections.map((c) => ({
       ...c,
       floorPrice: parseFloat((c.floorPrice * rate).toFixed(isUsd ? 0 : 4)),
-      topOffer: c.topOffer !== null ? parseFloat((c.topOffer * rate).toFixed(isUsd ? 0 : 4)) : null,
-      volume24h: parseFloat((c.volume24h * mul.volume * rate).toFixed(isUsd ? 0 : 2)),
-      sales24h: Math.max(1, Math.round(c.sales24h * mul.sales)),
-      floorChange24h: c.floorChange24h !== null
-        ? parseFloat((c.floorChange24h * mul.floorChange).toFixed(1))
-        : null,
-      volumeChange24h: parseFloat((c.volumeChange24h * (mul.floorChange > 1 ? 1 + (mul.floorChange - 1) * 0.3 : mul.floorChange)).toFixed(1)),
     })),
-    [collections, mul, rate, isUsd]
+    [collections, rate, isUsd]
   );
 
-  const currencyLabel = isUsd ? 'USD' : 'ETH';
-
-  const formatPrice = (v: number) => {
-    if (isUsd) return `$${v.toLocaleString()}`;
-    return `${v} ETH`;
-  };
+  const formatPrice = (v: number) =>
+    isUsd ? `$${v.toLocaleString()}` : `${v} ETH`;
 
   return (
     <>
-      {(showCurrencyToggle || showTimeFilters) && (
-        <div className="flex items-center justify-end gap-6 mb-6">
-          {showCurrencyToggle && (
-            <div className="flex items-center gap-2">
-              {CURRENCY_TYPES.map((currency) => (
-                <button
-                  key={currency}
-                  onClick={() => setSelectedCurrency(currency)}
-                  className={`px-3 py-1 text-sm font-medium transition-colors ${
-                    selectedCurrency === currency
-                      ? 'text-white'
-                      : isDark
-                        ? 'text-gray-500 hover:text-gray-300'
-                        : 'text-gray-400 hover:text-white'
-                  }`}
-                >
-                  {currency}
-                </button>
-              ))}
-            </div>
-          )}
-
-          {showTimeFilters && (
-            <div className="flex items-center gap-2">
-              {TIME_FILTERS.map((time) => (
-                <button
-                  key={time}
-                  onClick={() => setSelectedTimeFilter(time)}
-                  className={`px-3 py-1 text-sm font-medium rounded transition-colors ${
-                    selectedTimeFilter === time
-                      ? isDark
-                        ? 'bg-[#2a2a2a] text-white'
-                        : 'bg-purple-600 text-white'
-                      : 'text-gray-400 hover:text-white hover:bg-white/5'
-                  }`}
-                >
-                  {time}
-                </button>
-              ))}
-            </div>
-          )}
+      {showCurrencyToggle && (
+        <div className="flex items-center justify-end gap-2 mb-6">
+          {CURRENCY_TYPES.map((currency) => (
+            <button
+              key={currency}
+              onClick={() => setSelectedCurrency(currency)}
+              className={`px-3 py-1 text-sm font-medium transition-colors ${
+                selectedCurrency === currency
+                  ? 'text-white'
+                  : isDark
+                    ? 'text-gray-500 hover:text-gray-300'
+                    : 'text-gray-400 hover:text-white'
+              }`}
+            >
+              {currency}
+            </button>
+          ))}
         </div>
       )}
 
       <div className={`${isDark ? 'bg-[#0a0a0a]' : 'bg-black/40'} rounded-lg overflow-hidden ${isDark ? '' : 'border border-white/10'}`}>
         <table className="w-full">
-        <thead>
-          <tr className={`border-b ${isDark ? 'border-[#2a2a2a]' : 'border-white/10'}`}>
-            <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-4">
-              Collection
-            </th>
-            <th className="text-right text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-4">
-              Floor
-            </th>
-            <th className="text-right text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-4">
-              FL. CH
-            </th>
-            <th className="text-right text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-4">
-              Top Offer
-            </th>
-            <th className="text-right text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-4">
-              Sales
-            </th>
-            <th className="text-right text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-4">
-              Owners
-            </th>
-            <th className="text-right text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-4">
-              Listed
-            </th>
-            <th className="text-right text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-4">
-              <div className="flex items-center justify-end gap-1">
-                <ArrowDown className="w-3 h-3" />
-                Volume
-              </div>
-            </th>
-            <th className="text-right text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-4">
-              Floor
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {adjusted.map((collection) => (
-            <tr
-              key={collection.id}
-              onClick={() => collection.dbId && router.push(`/collections/${collection.dbId}`)}
-              className={`border-b ${isDark ? 'border-[#1a1a1a] hover:bg-[#1a1a1a]' : 'border-white/10 hover:bg-white/5'} transition-colors ${collection.dbId ? 'cursor-pointer' : 'cursor-default'}`}
-            >
-              <td className="px-6 py-4">
-                <div className="flex items-center gap-3">
-                  <img
-                    src={collection.image}
-                    alt={collection.name}
-                    className="w-10 h-10 rounded-lg"
-                  />
-                  <div className="flex items-center gap-2">
-                    <span className="text-white font-medium">
-                      {collection.name}
-                    </span>
-                    {collection.verified && (
-                      <span className="text-yellow-500 text-xs">✓</span>
-                    )}
-                    {collection.isMock && (
-                      <span className="px-1.5 py-0.5 text-[10px] font-medium bg-gray-700 text-gray-400 rounded">DEMO</span>
-                    )}
-                  </div>
-                </div>
-              </td>
-
-              <td className="px-6 py-4 text-right">
-                <span className="text-white font-medium">
-                  {formatPrice(collection.floorPrice)}
-                </span>
-              </td>
-
-              <td className="px-6 py-4 text-right">
-                {collection.floorChange24h !== null ? (
-                  <span
-                    className={`flex items-center justify-end gap-1 ${
-                      collection.floorChange24h > 0
-                        ? 'text-green-500'
-                        : 'text-red-500'
-                    }`}
-                  >
-                    {collection.floorChange24h > 0 ? (
-                      <TrendingUp className="w-3 h-3" />
-                    ) : (
-                      <TrendingDown className="w-3 h-3" />
-                    )}
-                    {Math.abs(collection.floorChange24h)}%
-                  </span>
-                ) : (
-                  <span className="text-gray-600">-</span>
-                )}
-              </td>
-
-              <td className="px-6 py-4 text-right">
-                {collection.topOffer ? (
-                  <span className="text-white">
-                    {formatPrice(collection.topOffer)}
-                  </span>
-                ) : (
-                  <span className="text-gray-600">-</span>
-                )}
-              </td>
-
-              <td className="px-6 py-4 text-right">
-                <span className="text-white">{collection.sales24h.toLocaleString()}</span>
-              </td>
-
-              <td className="px-6 py-4 text-right">
-                <span className="text-white">
-                  {collection.owners.toLocaleString()}
-                </span>
-              </td>
-
-              <td className="px-6 py-4 text-right">
-                <span className="text-white">{collection.listed}%</span>
-              </td>
-
-              <td className="px-6 py-4 text-right">
-                <span className="text-white font-medium">
-                  {isUsd ? `$${collection.volume24h.toLocaleString()}` : `${collection.volume24h.toLocaleString()} ETH`}
-                </span>
-              </td>
-
-              <td className="px-6 py-4 text-right">
-                <div className="flex justify-end">
-                  {collection.volumeChange24h > 0 ? (
-                    <div className="w-20 h-8 text-green-500">
-                      <svg viewBox="0 0 40 20" className="w-full h-full">
-                        <polyline
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="1.5"
-                          points="0,15 10,12 20,8 30,5 40,2"
-                        />
-                      </svg>
-                    </div>
-                  ) : collection.volumeChange24h < 0 ? (
-                    <div className="w-20 h-8 text-red-500">
-                      <svg viewBox="0 0 40 20" className="w-full h-full">
-                        <polyline
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="1.5"
-                          points="0,5 10,8 20,12 30,15 40,18"
-                        />
-                      </svg>
-                    </div>
-                  ) : (
-                    <span className="text-gray-600">-</span>
-                  )}
-                </div>
-              </td>
+          <thead>
+            <tr className={`border-b ${isDark ? 'border-[#2a2a2a]' : 'border-white/10'}`}>
+              <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-4">
+                Collection
+              </th>
+              <th className="text-right text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-4">
+                Floor
+              </th>
+              <th className="text-right text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-4">
+                Sales
+              </th>
+              <th className="text-right text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-4">
+                Owners
+              </th>
+              <th className="text-right text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-4">
+                Listed
+              </th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {adjusted.map((collection) => (
+              <tr
+                key={collection.id}
+                onClick={() => collection.dbId && router.push(`/collections/${collection.dbId}`)}
+                className={`border-b ${isDark ? 'border-[#1a1a1a] hover:bg-[#1a1a1a]' : 'border-white/10 hover:bg-white/5'} transition-colors ${collection.dbId ? 'cursor-pointer' : 'cursor-default'}`}
+              >
+                <td className="px-6 py-4">
+                  <div className="flex items-center gap-3">
+                    <img
+                      src={collection.image}
+                      alt={collection.name}
+                      className="w-10 h-10 rounded-lg"
+                    />
+                    <div className="flex items-center gap-2">
+                      <span className="text-white font-medium">{collection.name}</span>
+                      {collection.verified && (
+                        <span className="text-yellow-500 text-xs">✓</span>
+                      )}
+                      {collection.isMock && (
+                        <span className="px-1.5 py-0.5 text-[10px] font-medium bg-gray-700 text-gray-400 rounded">DEMO</span>
+                      )}
+                    </div>
+                  </div>
+                </td>
+
+                <td className="px-6 py-4 text-right">
+                  <span className="text-white font-medium">
+                    {formatPrice(collection.floorPrice)}
+                  </span>
+                </td>
+
+                <td className="px-6 py-4 text-right">
+                  <span className="text-white">{collection.sales24h.toLocaleString()}</span>
+                </td>
+
+                <td className="px-6 py-4 text-right">
+                  <span className="text-white">{collection.owners.toLocaleString()}</span>
+                </td>
+
+                <td className="px-6 py-4 text-right">
+                  <span className="text-white">{collection.listed}%</span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </>
   );

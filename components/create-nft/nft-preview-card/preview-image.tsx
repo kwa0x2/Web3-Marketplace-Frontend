@@ -1,5 +1,4 @@
 import Image from 'next/image';
-import { Heart } from 'lucide-react';
 
 interface PreviewImageProps {
   imagePreview?: string;
@@ -43,11 +42,6 @@ export function PreviewImage({ imagePreview, displayName, category }: PreviewIma
         </div>
       )}
 
-      {imagePreview && (
-        <button className="absolute top-4 right-4 p-2 bg-black/60 backdrop-blur-sm hover:bg-black/80 rounded-full transition-all group/like">
-          <Heart className="w-5 h-5 text-white group-hover/like:fill-red-500 group-hover/like:text-red-500 transition-all" />
-        </button>
-      )}
     </div>
   );
 }

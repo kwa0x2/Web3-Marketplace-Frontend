@@ -126,7 +126,7 @@ export function CreateNFTForm() {
           <input
             {...register('name')}
             type="text"
-            placeholder='e.g. "Redeemable T-Shirt with logo"'
+            placeholder='e.g. "Cyber Samurai #001"'
             className="w-full px-4 py-3 rounded-xl bg-gray-900/60 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 focus:bg-gray-900/80 transition-all"
           />
           {errors.name && (
@@ -143,7 +143,7 @@ export function CreateNFTForm() {
           </div>
           <textarea
             {...register('description')}
-            placeholder={'e.g. "After purchasing you\'ll be able to get the real T-Shirt"'}
+            placeholder='e.g. "A rare cyberpunk warrior from the CyberPunks collection."'
             rows={4}
             className="w-full px-4 py-3 rounded-xl bg-gray-900/60 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 focus:bg-gray-900/80 transition-all resize-none"
           />
