@@ -39,7 +39,7 @@ export default function MarketplacePage() {
         isLoading={nftsLoading || collectionsLoading}
       />
 
-      <div className="max-w-[1800px] mx-auto px-6 md:px-8 py-8">
+      <div className="max-w-[1800px] mx-auto px-4 md:px-6 lg:px-8 py-6 md:py-8">
         <MarketplaceTabs
           activeTab={activeTab}
           nftCount={pagination.total}

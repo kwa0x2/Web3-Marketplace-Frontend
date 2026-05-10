@@ -19,7 +19,7 @@ export function MarketplaceHero({ nftCount, collectionCount, isLoading }: Market
           backgroundSize: '40px 40px',
         }}
       />
-      <div className="relative max-w-[1800px] mx-auto px-6 md:px-8 py-12">
+      <div className="relative max-w-[1800px] mx-auto px-4 md:px-6 lg:px-8 py-8 md:py-12">
         <div className="flex items-center gap-2 mb-3">
           <div className="w-7 h-7 rounded-lg bg-purple-500/20 flex items-center justify-center">
             <LayoutGrid className="w-3.5 h-3.5 text-purple-400" />

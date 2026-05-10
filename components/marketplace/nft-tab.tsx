@@ -107,7 +107,7 @@ export function NFTTab({ nfts, pagination, isLoading, error, page, onPageChange 
           )}
         </div>
       ) : (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-5">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-3 md:gap-5">
           {filteredNfts.map((nft) => (
             <NFTCard
               key={nft.id}

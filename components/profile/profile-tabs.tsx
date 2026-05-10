@@ -18,12 +18,12 @@ export function ProfileTabs({ activeTab, ownedCount, listedCount, collectionsCou
   ];
 
   return (
-    <div className="flex items-center gap-1 mt-8 border-b border-white/[0.06]">
+    <div className="flex items-center gap-1 mt-8 border-b border-white/[0.06] overflow-x-auto scrollbar-none">
       {tabs.map((tab) => (
         <button
           key={tab.key}
           onClick={() => onChange(tab.key)}
-          className={`flex items-center gap-2 px-5 py-3.5 text-sm font-medium border-b-2 transition-all ${
+          className={`flex items-center gap-1.5 px-3 md:px-5 py-3.5 text-sm font-medium border-b-2 transition-all whitespace-nowrap flex-shrink-0 ${
             activeTab === tab.key
               ? 'text-white border-purple-500'
               : 'text-gray-500 border-transparent hover:text-gray-300 hover:border-gray-700'

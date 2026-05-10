@@ -173,7 +173,7 @@ export function ProfileNFTGrid({
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-5">
           {filteredNFTs.map((nft) => (
             <div key={nft.id} className="relative group/card">
               {/* Listed badge */}
