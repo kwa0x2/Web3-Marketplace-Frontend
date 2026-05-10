@@ -7,7 +7,6 @@ import { Navigation } from '@/components/home';
 import { NFTCard } from '@/components/nft/nft-card';
 import { useCollection } from '@/hooks/useCollections';
 import { CollectionHeader, CollectionStats, CollectionAbout, CollectionSkeleton, EditCollectionModal } from '@/components/collection';
-import { collectionService } from '@/api/services/collection.service';
 import { ArrowLeft, Info, LayoutGrid, Tag, User } from 'lucide-react';
 
 type Tab = 'all' | 'listed' | 'owned' | 'about';
@@ -35,8 +34,7 @@ export default function CollectionDetailPage({ params }: { params: { id: string 
     }
   }, [collection, activeTab, address]);
 
-  const handleSaveImages = async (formData: FormData) => {
-    await collectionService.updateImages(id, formData);
+  const handleSaveImages = async () => {
     await refetch();
   };
 

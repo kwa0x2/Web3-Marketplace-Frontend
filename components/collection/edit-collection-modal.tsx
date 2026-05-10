@@ -4,17 +4,20 @@ import { useRef, useState, useCallback } from 'react';
 import { X, Camera, ImageIcon, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { CollectionDetail } from '@/hooks/useCollections';
+import apiClient from '@/api/axios';
 
 interface EditCollectionModalProps {
   collection: CollectionDetail;
   onClose: () => void;
-  onSave: (formData: FormData) => Promise<void>;
+  onSave: () => void;
 }
 
 export function EditCollectionModal({ collection, onClose, onSave }: EditCollectionModalProps) {
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const [name, setName] = useState(collection.name);
+  const [description, setDescription] = useState(collection.description ?? '');
   const [imagePreview, setImagePreview] = useState<string | null>(collection.image ?? null);
   const [bannerPreview, setBannerPreview] = useState<string | null>(collection.banner ?? null);
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -38,17 +41,28 @@ export function EditCollectionModal({ collection, onClose, onSave }: EditCollect
   );
 
   const handleSubmit = async () => {
-    if (!imageFile && !bannerFile) {
-      onClose();
-      return;
-    }
     setIsSaving(true);
     setError(null);
     try {
-      const fd = new FormData();
-      if (imageFile) fd.append('image', imageFile);
-      if (bannerFile) fd.append('banner', bannerFile);
-      await onSave(fd);
+      const nameChanged = name.trim() !== collection.name;
+      const descChanged = description !== (collection.description ?? '');
+      if (nameChanged || descChanged) {
+        await apiClient.patch(`/collection/${collection.id}/description`, {
+          name: name.trim(),
+          description: description || null,
+        });
+      }
+
+      if (imageFile || bannerFile) {
+        const fd = new FormData();
+        if (imageFile) fd.append('image', imageFile);
+        if (bannerFile) fd.append('banner', bannerFile);
+        await apiClient.put(`/collection/${collection.id}/images`, fd, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
+      }
+
+      onSave();
       onClose();
     } catch (err: any) {
       setError(err?.response?.data?.error ?? err?.message ?? 'Failed to save');
@@ -92,10 +106,9 @@ export function EditCollectionModal({ collection, onClose, onSave }: EditCollect
         </div>
 
         {/* Collection Image */}
-        <div className="px-6 -mt-10 mb-6 relative z-10">
-          <p className="text-xs text-gray-500 mb-2 mt-12">Collection Image</p>
+        <div className="px-6 -mt-10 mb-2 relative z-10">
           <div
-            className="relative w-20 h-20 cursor-pointer group"
+            className="relative w-20 h-20 cursor-pointer group mt-12"
             onClick={() => imageInputRef.current?.click()}
           >
             <div className="w-20 h-20 rounded-2xl bg-[#18181b] ring-4 ring-black overflow-hidden flex items-center justify-center">
@@ -118,6 +131,31 @@ export function EditCollectionModal({ collection, onClose, onSave }: EditCollect
           />
         </div>
 
+        {/* Name & Description */}
+        <div className="px-6 pb-2 space-y-3">
+          <div>
+            <label className="text-xs text-gray-500 uppercase tracking-wider mb-1.5 block">Collection Name</label>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              maxLength={100}
+              className="w-full px-3 py-2.5 bg-white/[0.04] ring-1 ring-white/[0.08] rounded-xl text-white text-sm placeholder-gray-600 focus:outline-none focus:ring-purple-500/50 transition-all"
+            />
+          </div>
+          <div>
+            <label className="text-xs text-gray-500 uppercase tracking-wider mb-1.5 block">Description</label>
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              rows={3}
+              maxLength={1000}
+              placeholder="Describe your collection..."
+              className="w-full px-3 py-2.5 bg-white/[0.04] ring-1 ring-white/[0.08] rounded-xl text-white text-sm placeholder-gray-600 focus:outline-none focus:ring-purple-500/50 transition-all resize-none"
+            />
+          </div>
+        </div>
+
         {/* Footer */}
         <div className="px-6 pb-6 space-y-4">
           {error && (
@@ -137,7 +175,7 @@ export function EditCollectionModal({ collection, onClose, onSave }: EditCollect
             <Button
               className="flex-1 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500"
               onClick={handleSubmit}
-              disabled={isSaving}
+              disabled={isSaving || !name.trim()}
             >
               {isSaving ? (
                 <>
