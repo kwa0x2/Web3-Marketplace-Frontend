@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useWriteContract, useReadContract, useChainId, useAccount, usePublicClient } from 'wagmi';
 import { parseEther, formatEther } from 'viem';
+import { waitForReceipt } from '@/lib/wait-for-receipt';
 import { WEB3_MARKETPLACE_NFT_ABI, getNFTContractAddress } from '@/lib/contracts/Web3MarketplaceNFT';
 import apiClient from '@/api/axios';
 
@@ -47,13 +48,7 @@ export function useNFTBuy() {
         value: priceInWei,
       });
 
-      const receipt = await publicClient!.waitForTransactionReceipt({ hash: tx, pollingInterval: 2_000, timeout: 0 });
-
-      if (receipt.status === 'reverted') {
-        setError('Transaction reverted. The listing may have changed — please refresh and try again.');
-        setStep('error');
-        return false;
-      }
+      await waitForReceipt(publicClient!, tx, 'Purchase');
 
       try {
         await apiClient.patch(`/nft/token/${tokenId}/sold`, {
@@ -110,7 +105,7 @@ export function useNFTList() {
         functionName: 'approve',
         args: [contractAddress, BigInt(tokenId)],
       });
-      await publicClient!.waitForTransactionReceipt({ hash: approveTx, pollingInterval: 2_000, timeout: 0 });
+      await waitForReceipt(publicClient!, approveTx, 'Approval');
 
       setStep('listing');
 
@@ -120,7 +115,7 @@ export function useNFTList() {
         functionName: 'listItem',
         args: [BigInt(tokenId), parseEther(priceInEth)],
       });
-      await publicClient!.waitForTransactionReceipt({ hash: listTx, pollingInterval: 2_000, timeout: 0 });
+      await waitForReceipt(publicClient!, listTx, 'Listing');
 
       setStep('done');
       return true;
@@ -150,7 +145,7 @@ export function useNFTList() {
         functionName: 'cancelListing',
         args: [BigInt(tokenId)],
       });
-      await publicClient!.waitForTransactionReceipt({ hash: tx, pollingInterval: 2_000, timeout: 0 });
+      await waitForReceipt(publicClient!, tx, 'Cancel listing');
 
       return true;
     } catch (err: any) {
@@ -188,13 +183,7 @@ export function useNFTList() {
         args: [BigInt(tokenId), parseEther(newPriceInEth)],
       });
 
-      const receipt = await publicClient!.waitForTransactionReceipt({ hash: listTx, pollingInterval: 2_000, timeout: 0 });
-
-      if (receipt.status === 'reverted') {
-        setError('Transaction reverted. Make sure you still own this NFT and it is approved.');
-        setStep('error');
-        return false;
-      }
+      await waitForReceipt(publicClient!, listTx, 'Price update');
 
       setStep('done');
       return true;

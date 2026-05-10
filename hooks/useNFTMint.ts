@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useWriteContract, useChainId, usePublicClient, useAccount } from 'wagmi';
 import { parseEther, parseEventLogs } from 'viem';
+import { waitForReceipt } from '@/lib/wait-for-receipt';
 import { WEB3_MARKETPLACE_NFT_ABI, getNFTContractAddress } from '@/lib/contracts/Web3MarketplaceNFT';
 import apiClient from '@/api/axios';
 
@@ -84,7 +85,7 @@ export function useNFTMint() {
         collectionId: params.collectionId, price: params.price, currency: params.currency,
       }));
 
-      const mintReceipt = await publicClient!.waitForTransactionReceipt({ hash: txHash, pollingInterval: 2_000, timeout: 0 });
+      const mintReceipt = await waitForReceipt(publicClient!, txHash, 'Mint');
 
       // Read actual tokenId from the NFTMinted event — avoids race conditions from pre-computing totalSupply
       const mintedLogs = parseEventLogs({
@@ -114,7 +115,7 @@ export function useNFTMint() {
             functionName: 'setApprovalForAll',
             args: [contractAddress, true],
           });
-          await publicClient!.waitForTransactionReceipt({ hash: approveTx, pollingInterval: 2_000, timeout: 0 });
+          await waitForReceipt(publicClient!, approveTx, 'Approval');
         }
 
         setStep('listing');
@@ -134,7 +135,7 @@ export function useNFTMint() {
           functionName: 'listItem',
           args: [BigInt(tokenId), priceInWei],
         });
-        await publicClient!.waitForTransactionReceipt({ hash: listTx, pollingInterval: 2_000, timeout: 0 });
+        await waitForReceipt(publicClient!, listTx, 'Listing');
       }
 
       setStep('saving');
